@@ -920,16 +920,36 @@ function searchTrek() {
   if (!key) { alert('Inserisci la tua API Key Anthropic.'); return; }
 
   var out = document.getElementById('out-trek');
-  out.innerHTML = '<div class="loading"><div class="spinner"></div>📍 Geocodifica la zona...</div>';
+    // placeholder, replaced below
   document.getElementById('btn-trek').disabled = true;
 
   // ── Step 1: Nominatim → coordinate ──────────────────────────
-  // Estrai la prima riga come query di geocodifica
-  var geocodeQuery = descLibera.split('\n')[0].slice(0, 100);
-  // Prendi le prime 3-5 parole significative per Nominatim
-  var words = geocodeQuery.replace(/[()]/g, '').split(/\s+/).slice(0, 5).join(' ');
+  // Estrai il toponimo dalla descrizione libera:
+  // Cerca pattern "da X", "sopra X", "intorno a X", "zona X", "partendo da X"
+  // oppure usa la prima parola geografica significativa (> 3 lettere, non articoli/preposizioni)
+  var stopWords = {'da':1,'di':1,'del':1,'della':1,'dei':1,'degli':1,'delle':1,
+    'a':1,'al':1,'alla':1,'ai':1,'alle':1,'in':1,'nel':1,'nella':1,'sui':1,'sulle':1,
+    'verso':1,'per':1,'tra':1,'fra':1,'con':1,'su':1,'le':1,'la':1,'il':1,'i':1,
+    'lo':1,'un':1,'una':1,'uno':1,'e':1,'o':1,'ma':1,'che':1,'non':1,'si':1,
+    'escursioni':1,'sentieri':1,'rifugi':1,'rifugio':1,'percorsi':1,'gita':1,
+    'trekking':1,'lago':1,'cima':1,'partendo':1,'parto':1,'zona':1,'area':1,
+    'intorno':1,'sopra':1,'vicino':1,'niente':1,'preferisco':1,'voglio':1,
+    'verso':1,'arrivare':1,'voglio':1,'cerco':1,'fare':1,'belle':1,'bello':1};
+  
+  var words = descLibera.replace(/[()]/g,'').split(/\s+/);
+  var geoTokens = [];
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i].replace(/[,.:;!?]/g,'');
+    if (w.length > 3 && !stopWords[w.toLowerCase()]) {
+      geoTokens.push(w);
+      if (geoTokens.length >= 3) break;
+    }
+  }
+  var geocodeQ = geoTokens.join(' ') || descLibera.split('\n')[0].slice(0,60);
 
-  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=' + encodeURIComponent(words), {
+  out.innerHTML = '<div class="loading"><div class="spinner"></div>📍 Geocodifica: <em>' + esc(geocodeQ) + '</em>...</div>';
+
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=' + encodeURIComponent(geocodeQ), {
     headers: { 'Accept-Language': 'it', 'User-Agent': 'TravelAI/1.0' }
   })
   .then(function(r){ return r.json(); })
