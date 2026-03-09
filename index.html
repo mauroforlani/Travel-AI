@@ -118,6 +118,14 @@ header p { font-size:.83rem; color:#7b82a0; margin-top:.3rem; }
 .pref-chip { padding:.38rem .9rem; border-radius:999px; border:1.5px solid #2e3347; background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer; font-family:inherit; transition:all .15s; }
 .pref-chip.on { border-color:#d4a843; background:rgba(212,168,67,.15); color:#d4a843; font-weight:500; }
 
+.sort-btn {
+  padding:.3rem .8rem; border-radius:6px; border:1px solid #2e3347;
+  background:transparent; color:#7b82a0; font-size:.76rem; cursor:pointer;
+  font-family:inherit; transition:all .15s;
+}
+.sort-btn:hover { border-color:#d4a843; color:#d4a843; }
+.sort-btn.sort-active { border-color:#d4a843; background:rgba(212,168,67,.15); color:#d4a843; font-weight:600; }
+
 .opt-row { display:flex; gap:.8rem; align-items:flex-end; flex-wrap:wrap; }
 .opt-row .fld { flex:1; min-width:100px; }
 
@@ -434,16 +442,15 @@ header p { font-size:.83rem; color:#7b82a0; margin-top:.3rem; }
   </div>
   <div class="card">
     <div class="card-title">Pianifica le tue escursioni</div>
-    <div class="row2" style="margin-bottom:.8rem;">
+    <div class="row3" style="margin-bottom:.8rem;">
       <div class="fld">
         <label>Numero di escursioni</label>
         <select id="giorni-trek">
-          <option value="1">1 escursione</option>
-          <option value="2">2 escursioni</option>
           <option value="3" selected>3 escursioni</option>
-          <option value="4">4 escursioni</option>
           <option value="5">5 escursioni</option>
           <option value="7">7 escursioni</option>
+          <option value="10">10 escursioni</option>
+          <option value="15">15 escursioni</option>
         </select>
       </div>
       <div class="fld">
@@ -453,6 +460,17 @@ header p { font-size:.83rem; color:#7b82a0; margin-top:.3rem; }
           <option value="media (T3, escursionista allenato)" selected>Media — T3, allenato</option>
           <option value="impegnativa (T4-T5, esperienza richiesta)">Impegnativa — T4/T5</option>
           <option value="alpinistica (EE/EEA, attrezzatura specifica)">Alpinistica — EE/EEA</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Distanza max dalla base (km)</label>
+        <select id="dist-trek">
+          <option value="5">entro 5 km</option>
+          <option value="10">entro 10 km</option>
+          <option value="20" selected>entro 20 km</option>
+          <option value="30">entro 30 km</option>
+          <option value="50">entro 50 km</option>
+          <option value="0">qualsiasi distanza</option>
         </select>
       </div>
     </div>
@@ -913,6 +931,7 @@ function searchTrek() {
   var diff   = document.getElementById('diff-trek').value;
   if (!descLibera) { alert('Descrivi la zona nel campo testo.'); return; }
 
+  var distMax = document.getElementById('dist-trek').value;
   var tipi = Array.from(document.querySelectorAll('.tcat-chip.on')).map(function(b){ return b.getAttribute('data-tcat'); });
   if (!tipi.length) { alert('Seleziona almeno un tipo di percorso.'); return; }
 
@@ -949,9 +968,7 @@ function searchTrek() {
 
   out.innerHTML = '<div class="loading"><div class="spinner"></div>📍 Geocodifica: <em>' + esc(geocodeQ) + '</em>...</div>';
 
-  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=' + encodeURIComponent(geocodeQ), {
-    headers: { 'Accept-Language': 'it', 'User-Agent': 'TravelAI/1.0' }
-  })
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&accept-language=it&q=' + encodeURIComponent(geocodeQ))
   .then(function(r){ return r.json(); })
   .then(function(places){
     if (!places || !places.length) {
@@ -962,18 +979,18 @@ function searchTrek() {
     var lat = parseFloat(places[0].lat);
     var lon = parseFloat(places[0].lon);
     out.innerHTML = '<div class="loading"><div class="spinner"></div>🗺️ Cerco rifugi e laghi su OpenStreetMap...</div>';
-    return fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out);
+    return fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, distMax, out);
   })
   .catch(function(e){
     // Nominatim bloccato (CORS / offline): fallback diretto
     out.innerHTML = '<div class="loading"><div class="spinner"></div>⚠️ OSM non raggiungibile, genero con dati AI...</div>';
-    callClaudeTrek(key, descLibera, giorni, diff, tipi, null, out);
+    callClaudeTrek(key, descLibera, giorni, diff, tipi, distMax, null, out);
   });
 }
 
-function fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out) {
-  // Raggio 15 km attorno alle coordinate
-  var r = 0.135; // ~15km in gradi
+function fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, distMax, out) {
+  var ragioKm = (distMax && distMax !== '0') ? parseInt(distMax) : 20;
+  var r = ragioKm / 111.0;
   var s = (lat-r).toFixed(4), w = (lon-r).toFixed(4);
   var n = (lat+r).toFixed(4), e = (lon+r).toFixed(4);
   var bbox = s+','+w+','+n+','+e;
@@ -987,6 +1004,7 @@ function fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out) {
 
   fetch('https://overpass-api.de/api/interpreter', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'data=' + encodeURIComponent(overpassQuery)
   })
   .then(function(r){ return r.json(); })
@@ -998,7 +1016,7 @@ function fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out) {
   })
   .catch(function(e){
     out.innerHTML = '<div class="loading"><div class="spinner"></div>⚠️ Overpass non raggiungibile, genero con dati AI...</div>';
-    callClaudeTrek(key, descLibera, giorni, diff, tipi, null, out);
+    callClaudeTrek(key, descLibera, giorni, diff, tipi, distMax, null, out);
   });
 }
 
@@ -1027,7 +1045,7 @@ function buildOsmContext(elements, centerLat, centerLon) {
   return lines.join('\n');
 }
 
-function callClaudeTrek(key, descLibera, giorni, diff, tipi, osmCtx, out) {
+function callClaudeTrek(key, descLibera, giorni, diff, tipi, distMax, osmCtx, out) {
   var tipiStr = tipi.join(' / ');
 
   var SYS = 'Sei una guida alpina esperta. ' +
@@ -1041,12 +1059,14 @@ function callClaudeTrek(key, descLibera, giorni, diff, tipi, osmCtx, out) {
     ? '\n\nDATI REALI DA OPENSTREETMAP (usa questi per nomi e quote, non inventare altri):\n' + osmCtx + '\n'
     : '\n\n(Dati OSM non disponibili: usa conoscenza consolidata, segnala incertezze.)\n';
 
-  var USR = 'Genera esattamente ' + giorni + ' escursioni giornaliere per questa zona:\n\n' +
+  var distStr = (distMax && distMax !== '0') ? 'Le mete devono essere raggiungibili entro ' + distMax + ' km dalla base di partenza.' : '';
+  var USR = 'Genera esattamente ' + giorni + ' escursioni per questa zona:\n\n' +
     descLibera +
     osmSection +
-    '\nTipo: ' + tipiStr + '. Difficolta massima: ' + diff + '.\n' +
+    '\nTipo: ' + tipiStr + '. Difficolta massima: ' + diff + '. ' + distStr + '\n' +
     'Rispetta la zona indicata. Per ogni escursione restituisci:\n' +
     'giorno (1,2,...), titolo, tipo (' + tipiStr + '), ' +
+    'dist_partenza (distanza in km dalla base di partenza, numero intero), ' +
     'partenza (luogo preciso + quota), ' +
     'meta (nome esatto da OSM se disponibile + quota da OSM), ' +
     'km (A/R numero), dislivello (metri numero), durata (es. 5h), ' +
@@ -1091,18 +1111,62 @@ function callClaudeTrek(key, descLibera, giorni, diff, tipi, osmCtx, out) {
   });
 }
 
+// dati globali per il sort
+var _trekData = [];
+var _trekDest = '';
+var _trekOsm  = false;
+
+function sortTrek(field) {
+  // aggiorna stile bottoni
+  document.querySelectorAll('.sort-btn').forEach(function(b){ b.classList.remove('sort-active'); });
+  var activeBtn = document.querySelector('.sort-btn[data-sort="'+field+'"]');
+  if (activeBtn) activeBtn.classList.add('sort-active');
+
+  var sorted = _trekData.slice();
+  var diffOrder = {'T1':1,'T2':2,'T3':3,'T4':4,'T5':5,'EE':6,'EEA':7,'EE/A':7};
+  sorted.sort(function(a,b){
+    if (field === 'dist')      return (parseFloat(a.dist_partenza)||99) - (parseFloat(b.dist_partenza)||99);
+    if (field === 'dislivello') return (parseFloat(a.dislivello)||0) - (parseFloat(b.dislivello)||0);
+    if (field === 'km')        return (parseFloat(a.km)||0) - (parseFloat(b.km)||0);
+    if (field === 'diff')      return (diffOrder[a.difficolta]||9) - (diffOrder[b.difficolta]||9);
+    return 0;
+  });
+  renderCards(_trekData = sorted, _trekDest, _trekOsm);
+}
+
 function renderTrekItinerary(arr, dest, osmUsed) {
   if (!arr || !arr.length) {
     document.getElementById('out-trek').innerHTML = '<div class="errmsg">Nessun risultato trovato.</div>';
     return;
   }
+  _trekData = arr;
+  _trekDest = dest;
+  _trekOsm  = osmUsed;
+  renderCards(arr, dest, osmUsed);
+}
+
+function buildSortBar() {
+  var div = '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem;">';
+  div += '<span style="font-size:.7rem;color:#7b82a0;letter-spacing:.1em;text-transform:uppercase;margin-right:.3rem">Ordina:</span>';
+  var sorts = [['dist','&#128205; Distanza'],['dislivello','&#8679; Dislivello'],['km','&#128207; Lunghezza'],['diff','&#127919; Difficolt&agrave;']];
+  sorts.forEach(function(s){
+    div += '<button class="sort-btn" data-sort="'+s[0]+'" onclick="sortTrek(&quot;'+s[0]+'&quot;)">'+s[1]+'</button>';
+  });
+  div += '</div>';
+  return div;
+}
+
+function renderCards(arr, dest, osmUsed) {
   var tipoColors = { 'Escursionismo':'#4ade80', 'Via ferrata':'#fb923c', 'Alpinismo':'#94a3b8' };
   var diffColors = { 'T1':'#4ade80','T2':'#86efac','T3':'#fbbf24','T4':'#f87171','EE':'#e879f9','EE/A':'#e879f9' };
 
   var srcBadge = osmUsed
     ? '<div style="font-size:.72rem;color:#4ade80;margin-bottom:.4rem;">&#10003; Dati geografici da OpenStreetMap (nomi e quote verificati)</div>'
-    : '<div style="font-size:.72rem;color:#f59e0b;margin-bottom:.4rem;">&#9888;&#65039; Dati geografici dalla memoria AI &mdash; verifica quote e nomi su CAI o Komoot</div>';
-  var html = '<div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:.5rem;">' + srcBadge;
+    : '<div style="font-size:.72rem;color:#f59e0b;margin-bottom:.4rem;">&#9888;&#65039; Dati AI &mdash; verifica quote e nomi su CAI o Komoot</div>';
+
+  var sortBar = buildSortBar();
+
+  var html = '<div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:.5rem;">' + srcBadge + sortBar;
   arr.forEach(function(g) {
     var col = tipoColors[g.tipo] || '#d4a843';
     var diffCol = diffColors[g.difficolta] || '#7b82a0';
@@ -1126,6 +1190,7 @@ function renderTrekItinerary(arr, dest, osmUsed) {
     if (g.km)         html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">📏 '+esc(String(g.km))+' km</span>';
     if (g.dislivello) html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">⬆️ '+esc(String(g.dislivello))+' m</span>';
     if (g.durata)     html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">⏱️ '+esc(g.durata)+'</span>';
+    if (g.dist_partenza != null && g.dist_partenza !== '') html += '<span style="background:rgba(56,189,248,.1);color:#38bdf8;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">📍 '+esc(String(g.dist_partenza))+' km dalla base</span>';
     if (g.sentiero_cai && g.sentiero_cai !== '') html += '<span style="background:rgba(255,255,255,.05);color:#a0a8c0;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">🗺️ '+esc(g.sentiero_cai)+'</span>';
     html += '</div>';
 
