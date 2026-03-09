@@ -303,7 +303,7 @@ header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
   <!-- API KEY -->
   <div class="apibar">
     <label>🔑 API Key Anthropic</label>
-    <input type="password" id="apikey" placeholder="sk-ant-..." />
+    <input type="password" id="apikey" placeholder="sk-ant-..." onblur="saveKey()" />
     <span class="note">
       Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
       &rarr; API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser
@@ -366,6 +366,43 @@ header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
 </div><!-- /wrap -->
 
 <script>
+// ── salva/carica API key ──────────────────────────────────────
+(function () {
+  var saved = localStorage.getItem("travelai_key");
+  if (saved) document.getElementById("apikey").value = saved;
+})();
+
+function saveKey() {
+  var k = document.getElementById("apikey").value.trim();
+  if (k) localStorage.setItem("travelai_key", k);
+}
+
+// ── API Key localStorage ──────────────────────────────────────
+function saveKey(val) {
+  if (val) {
+    localStorage.setItem('travel_ai_key', val);
+    document.getElementById('key-status').style.display = 'inline';
+  } else {
+    localStorage.removeItem('travel_ai_key');
+    document.getElementById('key-status').style.display = 'none';
+  }
+}
+
+function clearKey() {
+  localStorage.removeItem('travel_ai_key');
+  document.getElementById('apikey').value = '';
+  document.getElementById('key-status').style.display = 'none';
+}
+
+// load on page open
+(function () {
+  var saved = localStorage.getItem('travel_ai_key');
+  if (saved) {
+    document.getElementById('apikey').value = saved;
+    document.getElementById('key-status').style.display = 'inline';
+  }
+})();
+
 // ── date defaults ──────────────────────────────────────────────
 (function () {
   var out = new Date();
