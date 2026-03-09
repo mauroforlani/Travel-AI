@@ -6,287 +6,231 @@
 <title>Travel AI</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:#0f1117; color:#e8eaf0; min-height:100vh; }
 
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #0f1117;
-  color: #e8eaf0;
-  min-height: 100vh;
-}
-
-/* HEADER */
 header {
-  text-align: center;
-  padding: 2.2rem 1rem 1.8rem;
-  border-bottom: 1px solid #2e3347;
-  position: relative;
+  text-align:center; padding:2rem 1rem 1.6rem;
+  border-bottom:1px solid #2e3347; position:relative;
 }
 header::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent, #d4a843, #f0c96a, #d4a843, transparent);
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,transparent,#d4a843,#f0c96a,#d4a843,transparent);
 }
-header .eye {
-  font-size: .65rem;
-  letter-spacing: .35em;
-  text-transform: uppercase;
-  color: #d4a843;
-  margin-bottom: .5rem;
-}
-header h1 {
-  font-family: Georgia, serif;
-  font-size: 2.6rem;
-  font-weight: 400;
-  line-height: 1;
-}
-header h1 span { color: #d4a843; font-style: italic; }
-header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
+header .eye { font-size:.65rem; letter-spacing:.35em; text-transform:uppercase; color:#d4a843; margin-bottom:.4rem; }
+header h1 { font-family:Georgia,serif; font-size:2.4rem; font-weight:400; line-height:1; }
+header h1 span { color:#d4a843; font-style:italic; }
+header p { font-size:.83rem; color:#7b82a0; margin-top:.3rem; }
 
-/* WRAP */
-.wrap { max-width: 860px; margin: 0 auto; padding: 1.4rem 1rem 4rem; }
+.tabnav {
+  display:flex; border-bottom:1px solid #2e3347;
+  background:#0f1117; position:sticky; top:0; z-index:100;
+}
+.tabnav button {
+  flex:1; padding:.85rem .5rem; border:none; background:transparent;
+  color:#7b82a0; font-family:inherit; font-size:.88rem; cursor:pointer;
+  border-bottom:3px solid transparent; transition:all .2s;
+  display:flex; align-items:center; justify-content:center; gap:.4rem;
+}
+.tabnav button:hover { color:#e8eaf0; background:rgba(255,255,255,.03); }
+.tabnav button.active { color:#d4a843; border-bottom-color:#d4a843; background:rgba(212,168,67,.05); }
 
-/* API BAR */
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.wrap { max-width:960px; margin:0 auto; padding:1.4rem 1rem 4rem; }
+
 .apibar {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  background: rgba(212,168,67,.06);
-  border: 1px solid rgba(212,168,67,.25);
-  border-radius: 10px;
-  padding: .75rem 1rem;
-  margin-bottom: 1.2rem;
-  flex-wrap: wrap;
+  display:flex; align-items:center; gap:.8rem; flex-wrap:wrap;
+  background:rgba(212,168,67,.06); border:1px solid rgba(212,168,67,.25);
+  border-radius:10px; padding:.75rem 1rem; margin-bottom:1.2rem;
 }
-.apibar label {
-  font-size: .68rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #d4a843;
-  white-space: nowrap;
-}
+.apibar label { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:#d4a843; white-space:nowrap; }
 .apibar input {
-  flex: 1;
-  min-width: 180px;
-  padding: .45rem .8rem;
-  background: #0a0c12;
-  border: 1.5px solid #2e3347;
-  border-radius: 7px;
-  font-size: .85rem;
-  color: #e8eaf0;
-  font-family: inherit;
-  outline: none;
+  flex:1; min-width:180px; padding:.45rem .8rem;
+  background:#0a0c12; border:1.5px solid #2e3347; border-radius:7px;
+  font-size:.85rem; color:#e8eaf0; font-family:inherit; outline:none;
 }
-.apibar input:focus { border-color: #d4a843; }
-.apibar .note { font-size: .72rem; color: #7b82a0; }
-.apibar .note a { color: #d4a843; text-decoration: none; }
-
-/* CARD */
-.card {
-  background: #1a1d27;
-  border: 1px solid #2e3347;
-  border-radius: 14px;
-  padding: 1.4rem;
-  margin-bottom: 1rem;
-}
-.card-title {
-  font-size: .68rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: #7b82a0;
-  margin-bottom: 1rem;
+.apibar input:focus { border-color:#d4a843; }
+.apibar .note { font-size:.72rem; color:#7b82a0; }
+.apibar .note a { color:#d4a843; text-decoration:none; }
+.apibar .saved { font-size:.72rem; color:#4ade80; display:none; }
+.apibar .delbtn {
+  font-size:.72rem; padding:.25rem .6rem; background:transparent;
+  border:1px solid #2e3347; border-radius:5px; color:#7b82a0; cursor:pointer; font-family:inherit;
 }
 
-/* FIELDS */
-.row3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: .9rem;
-  margin-bottom: 1rem;
-}
-.fld label {
-  display: block;
-  font-size: .62rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #7b82a0;
-  margin-bottom: .32rem;
-}
+.card { background:#1a1d27; border:1px solid #2e3347; border-radius:14px; padding:1.4rem; margin-bottom:1rem; }
+.card-title { font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:#7b82a0; margin-bottom:1rem; }
+
+.row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.9rem; margin-bottom:1rem; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; margin-bottom:1rem; }
+
+.fld label { display:block; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:#7b82a0; margin-bottom:.32rem; }
 .fld input, .fld select {
-  width: 100%;
-  padding: .58rem .9rem;
-  background: #0a0c12;
-  border: 1.5px solid #2e3347;
-  border-radius: 8px;
-  font-size: .88rem;
-  color: #e8eaf0;
-  font-family: inherit;
-  outline: none;
-  transition: border-color .2s;
+  width:100%; padding:.58rem .9rem;
+  background:#0a0c12; border:1.5px solid #2e3347; border-radius:8px;
+  font-size:.88rem; color:#e8eaf0; font-family:inherit; outline:none; transition:border-color .2s;
 }
-.fld input:focus, .fld select:focus { border-color: #d4a843; }
+.fld input:focus, .fld select:focus { border-color:#d4a843; }
+.fld-rel { position:relative; }
 
-/* CHIPS */
-.chips { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.sug-box {
+  display:none; position:absolute; top:100%; left:0; right:0; z-index:9999;
+  background:#1a1d27; border:1.5px solid #d4a843; border-top:none;
+  border-radius:0 0 10px 10px; max-height:220px; overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.sug-item { padding:.5rem 1rem; cursor:pointer; font-size:.85rem; border-bottom:1px solid #2e3347; }
+.sug-item:hover { background:rgba(212,168,67,.12); }
+.sug-item:last-child { border-bottom:none; }
+.sug-item .ctry { font-size:.72rem; color:#7b82a0; margin-left:.4rem; }
+
+.chips { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:1rem; }
 .chip {
-  padding: .38rem .95rem;
-  border-radius: 999px;
-  border: 1.5px solid #2e3347;
-  background: transparent;
-  color: #7b82a0;
-  font-size: .8rem;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .15s;
+  padding:.38rem .95rem; border-radius:999px; border:1.5px solid #2e3347;
+  background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer;
+  font-family:inherit; transition:all .15s;
 }
-.chip.on {
-  border-color: #d4a843;
-  background: rgba(212,168,67,.15);
-  color: #d4a843;
-  font-weight: 500;
-}
+.chip.on { border-color:#d4a843; background:rgba(212,168,67,.15); color:#d4a843; font-weight:500; }
 
-/* OPTIONS ROW */
-.opt-row {
-  display: flex;
-  gap: .8rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-.opt-row .fld { flex: 1; min-width: 100px; }
+.cat-chip { padding:.38rem .9rem; border-radius:999px; border:1.5px solid #2e3347; background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer; font-family:inherit; transition:all .15s; }
+.cat-chip.on { font-weight:500; }
+.cat-chip[data-cat="Cultura e Storia"].on  { border-color:#a78bfa; background:rgba(167,139,250,.15); color:#a78bfa; }
+.cat-chip[data-cat="Natura e Paesaggi"].on { border-color:#4ade80; background:rgba(74,222,128,.12); color:#4ade80; }
+.cat-chip[data-cat="Spiagge e Mare"].on    { border-color:#38bdf8; background:rgba(56,189,248,.12); color:#38bdf8; }
+.cat-chip[data-cat="Sport e Avventura"].on { border-color:#f87171; background:rgba(248,113,113,.12); color:#f87171; }
 
-/* BUTTON */
+.gcat-chip { padding:.38rem .9rem; border-radius:999px; border:1.5px solid #2e3347; background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer; font-family:inherit; transition:all .15s; }
+.gcat-chip.on { font-weight:500; }
+.gcat-chip[data-gcat="Ristoranti"].on             { border-color:#fb923c; background:rgba(251,146,60,.15); color:#fb923c; }
+.gcat-chip[data-gcat="Bar e Cafè"].on             { border-color:#f59e0b; background:rgba(245,158,11,.12); color:#f59e0b; }
+.gcat-chip[data-gcat="Street food"].on            { border-color:#84cc16; background:rgba(132,204,22,.12); color:#84cc16; }
+.gcat-chip[data-gcat="Mercati e prodotti tipici"].on { border-color:#e879f9; background:rgba(232,121,249,.12); color:#e879f9; }
+.gcat-chip[data-gcat="Cantine e degustazioni"].on { border-color:#c084fc; background:rgba(192,132,252,.12); color:#c084fc; }
+.gcat-chip[data-gcat="Pasticcerie e dolci"].on    { border-color:#f472b6; background:rgba(244,114,182,.12); color:#f472b6; }
+
+.tcat-chip { padding:.38rem .9rem; border-radius:999px; border:1.5px solid #2e3347; background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer; font-family:inherit; transition:all .15s; }
+.tcat-chip.on { font-weight:500; }
+.tcat-chip[data-tcat="Escursionismo"].on { border-color:#4ade80; background:rgba(74,222,128,.12); color:#4ade80; }
+.tcat-chip[data-tcat="Via ferrata"].on   { border-color:#fb923c; background:rgba(251,146,60,.12); color:#fb923c; }
+.tcat-chip[data-tcat="Alpinismo"].on     { border-color:#94a3b8; background:rgba(148,163,184,.12); color:#94a3b8; }
+
+.pref-chip { padding:.38rem .9rem; border-radius:999px; border:1.5px solid #2e3347; background:transparent; color:#7b82a0; font-size:.8rem; cursor:pointer; font-family:inherit; transition:all .15s; }
+.pref-chip.on { border-color:#d4a843; background:rgba(212,168,67,.15); color:#d4a843; font-weight:500; }
+
+.opt-row { display:flex; gap:.8rem; align-items:flex-end; flex-wrap:wrap; }
+.opt-row .fld { flex:1; min-width:100px; }
+
 .btn {
-  padding: .62rem 1.5rem;
-  background: #d4a843;
-  color: #0f1117;
-  border: none;
-  border-radius: 9px;
-  font-size: .9rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  transition: background .2s, transform .1s;
-  display: flex;
-  align-items: center;
-  gap: .4rem;
+  padding:.62rem 1.5rem; background:#d4a843; color:#0f1117;
+  border:none; border-radius:9px; font-size:.9rem; font-weight:700;
+  cursor:pointer; font-family:inherit; white-space:nowrap;
+  transition:background .2s; display:flex; align-items:center; gap:.4rem;
 }
-.btn:hover { background: #f0c96a; transform: translateY(-1px); }
-.btn:disabled { background: #2e3347; color: #7b82a0; cursor: not-allowed; transform: none; }
+.btn:hover { background:#f0c96a; }
+.btn:disabled { background:#2e3347; color:#7b82a0; cursor:not-allowed; }
 
-/* LOADING */
 .loading {
-  display: flex;
-  align-items: center;
-  gap: .9rem;
-  padding: 1.3rem 1.4rem;
-  color: #7b82a0;
-  font-style: italic;
-  font-size: .88rem;
-  background: #1a1d27;
-  border: 1px solid #2e3347;
-  border-radius: 14px;
+  display:flex; align-items:center; gap:.9rem; padding:1.3rem 1.4rem;
+  color:#7b82a0; font-style:italic; font-size:.88rem;
+  background:#1a1d27; border:1px solid #2e3347; border-radius:14px;
 }
 .spinner {
-  width: 20px; height: 20px;
-  border: 2.5px solid #2e3347;
-  border-top-color: #d4a843;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  flex-shrink: 0;
+  width:20px; height:20px; border:2.5px solid #2e3347;
+  border-top-color:#d4a843; border-radius:50%;
+  animation:spin .8s linear infinite; flex-shrink:0;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ERROR */
+@keyframes spin { to { transform:rotate(360deg); } }
 .errmsg {
-  background: rgba(248,113,113,.1);
-  border: 1px solid rgba(248,113,113,.3);
-  border-radius: 10px;
-  padding: .85rem 1rem;
-  color: #f87171;
-  font-size: .85rem;
-  margin-top: .8rem;
+  background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3);
+  border-radius:10px; padding:.85rem 1rem; color:#f87171; font-size:.85rem; margin-top:.8rem;
 }
 
-/* RESULT CARDS */
-.results { display: grid; gap: .85rem; margin-top: .2rem; }
-
+.results { display:grid; gap:.85rem; margin-top:.2rem; }
 .tr-card {
-  background: #1a1d27;
-  border: 1px solid #2e3347;
-  border-radius: 14px;
-  padding: 1.2rem 1.3rem;
-  display: grid;
-  grid-template-columns: 2.8rem 1fr auto;
-  gap: .9rem;
-  align-items: start;
-  transition: border-color .2s;
+  background:#1a1d27; border:1px solid #2e3347; border-radius:14px;
+  padding:1.2rem 1.3rem; display:grid; grid-template-columns:2.8rem 1fr auto;
+  gap:.9rem; align-items:start; transition:border-color .2s;
 }
-.tr-card:hover { border-color: rgba(212,168,67,.5); }
-
-.tr-icon { font-size: 1.9rem; padding-top: .1rem; }
-
-.tr-body h3 {
-  font-size: .95rem;
-  font-weight: 600;
-  color: #e8eaf0;
-  margin-bottom: .28rem;
-}
-.tr-body .detail {
-  font-size: .82rem;
-  color: #7b82a0;
-  line-height: 1.65;
-}
-.tr-body .tr-note {
-  font-size: .75rem;
-  color: #d4a843;
-  margin-top: .35rem;
-}
+.tr-card:hover { border-color:rgba(212,168,67,.5); }
+.tr-icon { font-size:1.9rem; padding-top:.1rem; }
+.tr-body h3 { font-size:.95rem; font-weight:600; margin-bottom:.28rem; }
+.tr-body .detail { font-size:.82rem; color:#7b82a0; line-height:1.65; }
+.tr-body .tr-note { font-size:.75rem; color:#d4a843; margin-top:.35rem; }
 .tr-body .tr-link {
-  display: inline-block;
-  margin-top: .55rem;
-  padding: .28rem .7rem;
-  background: rgba(212,168,67,.1);
-  border: 1px solid rgba(212,168,67,.3);
-  border-radius: 6px;
-  color: #d4a843;
-  font-size: .74rem;
-  text-decoration: none;
-  transition: background .15s;
+  display:inline-block; margin-top:.55rem; padding:.28rem .7rem;
+  background:rgba(212,168,67,.1); border:1px solid rgba(212,168,67,.3);
+  border-radius:6px; color:#d4a843; font-size:.74rem; text-decoration:none;
 }
-.tr-body .tr-link:hover { background: rgba(212,168,67,.22); }
+.tr-body .tr-link:hover { background:rgba(212,168,67,.22); }
+.tr-meta { text-align:right; min-width:88px; }
+.tr-price { font-family:Georgia,serif; font-size:1.1rem; color:#d4a843; white-space:nowrap; }
+.tr-price-ar { font-size:.8rem; color:#f0c96a; margin-top:.1rem; white-space:nowrap; }
+.tr-dur { font-size:.74rem; color:#7b82a0; margin-top:.2rem; }
+#ret-wrap { transition:opacity .2s; }
 
-.tr-meta { text-align: right; min-width: 88px; }
-.tr-price {
-  font-family: Georgia, serif;
-  font-size: 1.1rem;
-  color: #d4a843;
-  white-space: nowrap;
+.cat-section { margin-bottom:2rem; }
+.cat-header {
+  display:flex; align-items:center; gap:.6rem;
+  font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  margin-bottom:.9rem; padding-bottom:.5rem; border-bottom:1px solid #2e3347;
 }
-.tr-price-ar {
-  font-size: .8rem;
-  color: #f0c96a;
-  margin-top: .1rem;
-  white-space: nowrap;
+.cat-header .cat-count { color:#7b82a0; font-size:.65rem; }
+.poi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
+.poi-card {
+  background:#1a1d27; border:1px solid #2e3347; border-radius:14px;
+  overflow:hidden; transition:border-color .2s, transform .2s;
 }
-.tr-dur {
-  font-size: .74rem;
-  color: #7b82a0;
-  margin-top: .2rem;
+.poi-card:hover { border-color:rgba(212,168,67,.4); transform:translateY(-2px); }
+.poi-card[data-cat="Cultura e Storia"]  { border-top:3px solid #a78bfa; }
+.poi-card[data-cat="Natura e Paesaggi"] { border-top:3px solid #4ade80; }
+.poi-card[data-cat="Spiagge e Mare"]    { border-top:3px solid #38bdf8; }
+.poi-card[data-cat="Sport e Avventura"] { border-top:3px solid #f87171; }
+.poi-card[data-cat="Ristoranti"]             { border-top:3px solid #fb923c; }
+.poi-card[data-cat="Bar e Cafè"]             { border-top:3px solid #f59e0b; }
+.poi-card[data-cat="Street food"]            { border-top:3px solid #84cc16; }
+.poi-card[data-cat="Mercati e prodotti tipici"] { border-top:3px solid #e879f9; }
+.poi-card[data-cat="Cantine e degustazioni"] { border-top:3px solid #c084fc; }
+.poi-card[data-cat="Pasticcerie e dolci"]    { border-top:3px solid #f472b6; }
+
+.poi-img { width:100%; height:155px; object-fit:cover; background:#222638; display:block; }
+.poi-img-fallback { width:100%; height:155px; background:#222638; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+.poi-body { padding:.85rem 1rem; }
+.poi-name { font-size:.9rem; font-weight:600; margin-bottom:.28rem; line-height:1.3; }
+.poi-dist { font-size:.7rem; color:#7b82a0; margin-bottom:.35rem; }
+.poi-desc { font-size:.77rem; color:#9ca3af; line-height:1.6; }
+.poi-tags { display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.5rem; }
+.poi-tag { padding:.15rem .5rem; border-radius:4px; font-size:.67rem; background:rgba(212,168,67,.1); color:#d4a843; }
+.poi-price { font-size:.78rem; color:#4ade80; margin-top:.4rem; font-weight:600; }
+
+.trek-link {
+  display:flex; align-items:center; gap:.8rem; padding:.7rem 1rem;
+  background:rgba(255,255,255,.04); border-radius:8px; text-decoration:none;
+  margin-bottom:.5rem; border:1px solid #2e3347; transition:background .15s;
+}
+.trek-link:hover { background:rgba(255,255,255,.09); }
+.trek-link-body { flex:1; }
+.trek-link-title { color:#e8eaf0; font-size:.9rem; font-weight:500; }
+.trek-link-sub { color:#7b82a0; font-size:.75rem; margin-top:.1rem; }
+.trek-arrow { color:#d4a843; font-size:.85rem; }
+.trek-info-box {
+  margin-top:.8rem; padding:.6rem .9rem;
+  background:rgba(212,168,67,.07); border-radius:6px;
+  font-size:.78rem; color:#a0a8c0; line-height:1.5;
 }
 
-/* hide ret wrapper when disabled */
-#ret-wrap { transition: opacity .2s; }
-
-@media (max-width: 600px) {
-  .row3 { grid-template-columns: 1fr 1fr; }
-  header h1 { font-size: 2rem; }
-  .tr-card { grid-template-columns: 2.4rem 1fr; }
-  .tr-meta { grid-column: 2; text-align: left; margin-top: .3rem; }
+@media(max-width:640px){
+  .row3 { grid-template-columns:1fr 1fr; }
+  .row2 { grid-template-columns:1fr; }
+  header h1 { font-size:2rem; }
+  .tabnav button span.lbl { display:none; }
+  .tr-card { grid-template-columns:2.4rem 1fr; }
+  .tr-meta { grid-column:2; text-align:left; margin-top:.3rem; }
+  .poi-grid { grid-template-columns:1fr 1fr; }
 }
-@media (max-width: 400px) {
-  .row3 { grid-template-columns: 1fr; }
+@media(max-width:400px){
+  .row3 { grid-template-columns:1fr; }
+  .poi-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -295,55 +239,59 @@ header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
 <header>
   <div class="eye">✦ il tuo agente di viaggio ✦</div>
   <h1>Travel <span>AI</span></h1>
-  <p>Trova le migliori soluzioni di trasporto per il tuo viaggio</p>
+  <p>Pianifica ogni dettaglio del tuo viaggio</p>
 </header>
 
-<div class="wrap">
+<div class="tabnav">
+  <button class="active" onclick="switchTab('tra')">✈️ <span class="lbl">Trasporti</span></button>
+  <button onclick="switchTab('poi')">📍 <span class="lbl">POI</span></button>
+  <button onclick="switchTab('gas')">🍽️ <span class="lbl">Gastronomia</span></button>
+  <button onclick="switchTab('trek')">🥾 <span class="lbl">Trekking</span></button>
+</div>
 
-  <!-- API KEY -->
+<!-- ══════════════ TAB TRASPORTI ══════════════ -->
+<div class="tab-panel active" id="tab-tra">
+<div class="wrap">
   <div class="apibar">
     <label>🔑 API Key Anthropic</label>
-    <input type="password" id="apikey" placeholder="sk-ant-..." onblur="saveKey()" />
-    <span class="note">
-      Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
-      &rarr; API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser
-    </span>
+    <input type="password" id="apikey-tra" placeholder="sk-ant-..." oninput="saveKey(this.value)" />
+    <span class="note">Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser</span>
+    <span class="saved" id="key-saved-tra">✓ salvata</span>
+    <button class="delbtn" onclick="clearKey()">Elimina</button>
   </div>
-
-  <!-- FORM -->
   <div class="card">
     <div class="card-title">Configura il tuo viaggio</div>
-
     <div class="row3">
-      <div class="fld">
+      <div class="fld fld-rel">
         <label>Partenza da</label>
-        <input type="text" id="from" placeholder="es. Milano" />
+        <input type="text" id="from" placeholder="Cerca città..." autocomplete="off"
+          oninput="cityFilter('from',this.value)" onblur="setTimeout(function(){hideSug('from')},200)" />
+        <div class="sug-box" id="sug-from"></div>
       </div>
-      <div class="fld">
+      <div class="fld fld-rel">
         <label>Destinazione</label>
-        <input type="text" id="dest" placeholder="es. La Palma, Tokyo..." />
+        <input type="text" id="dest-tra" placeholder="Cerca città..." autocomplete="off"
+          oninput="cityFilter('dest-tra',this.value)" onblur="setTimeout(function(){hideSug('dest-tra')},200)" />
+        <div class="sug-box" id="sug-dest-tra"></div>
       </div>
       <div class="fld">
         <label>Data partenza</label>
         <input type="date" id="date-out" />
       </div>
     </div>
-
     <div class="chips">
       <button class="chip on" id="chip-ow" onclick="setTrip('ow')">➡️ Solo andata</button>
       <button class="chip"    id="chip-rt" onclick="setTrip('rt')">🔄 Andata e ritorno</button>
     </div>
-
     <div class="opt-row">
-      <div class="fld" id="ret-wrap" style="opacity:.3; pointer-events:none;">
+      <div class="fld" id="ret-wrap" style="opacity:.3;pointer-events:none;">
         <label>Data ritorno</label>
         <input type="date" id="date-ret" />
       </div>
       <div class="fld">
         <label>Passeggeri</label>
         <select id="pax">
-          <option>1</option><option>2</option><option>3</option>
-          <option>4</option><option>5+</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
         </select>
       </div>
       <div class="fld">
@@ -354,128 +302,740 @@ header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
           <option value="first">Prima Classe</option>
         </select>
       </div>
-      <button class="btn" id="btn-go" onclick="doSearch()">
-        🔍 Cerca trasporti
-      </button>
+      <button class="btn" id="btn-tra" onclick="searchTra()">🔍 Cerca trasporti</button>
     </div>
   </div>
+  <div id="out-tra"></div>
+</div>
+</div>
 
-  <!-- OUTPUT -->
-  <div id="output"></div>
+<!-- ══════════════ TAB POI ══════════════ -->
+<div class="tab-panel" id="tab-poi">
+<div class="wrap">
+  <div class="apibar">
+    <label>🔑 API Key Anthropic</label>
+    <input type="password" id="apikey-poi" placeholder="sk-ant-..." oninput="saveKey(this.value)" />
+    <span class="note">Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser</span>
+    <span class="saved" id="key-saved-poi">✓ salvata</span>
+    <button class="delbtn" onclick="clearKey()">Elimina</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Cerca punti di interesse</div>
+    <div class="row2">
+      <div class="fld fld-rel">
+        <label>Destinazione</label>
+        <input type="text" id="dest-poi" placeholder="Cerca città..." autocomplete="off"
+          oninput="cityFilter('dest-poi',this.value)" onblur="setTimeout(function(){hideSug('dest-poi')},200)" />
+        <div class="sug-box" id="sug-dest-poi"></div>
+      </div>
+      <div class="fld">
+        <label>Raggio di ricerca (km)</label>
+        <input type="number" id="radius-poi" value="15" min="1" max="100" />
+      </div>
+    </div>
+    <div class="card-title" style="margin-bottom:.5rem;">Categorie</div>
+    <div class="chips">
+      <button class="cat-chip on" data-cat="Cultura e Storia"  onclick="toggleChip(this)">🏛️ Cultura e Storia</button>
+      <button class="cat-chip on" data-cat="Natura e Paesaggi" onclick="toggleChip(this)">🌿 Natura e Paesaggi</button>
+      <button class="cat-chip on" data-cat="Spiagge e Mare"    onclick="toggleChip(this)">🏖️ Spiagge e Mare</button>
+      <button class="cat-chip on" data-cat="Sport e Avventura" onclick="toggleChip(this)">🏄 Sport e Avventura</button>
+    </div>
+    <div class="opt-row">
+      <div class="fld">
+        <label>POI per categoria</label>
+        <select id="num-poi">
+          <option value="3">3 per categoria</option>
+          <option value="5" selected>5 per categoria</option>
+          <option value="8">8 per categoria</option>
+          <option value="10">10 per categoria</option>
+          <option value="15">15 per categoria</option>
+          <option value="20">20 per categoria</option>
+          <option value="30">30 per categoria</option>
+          <option value="50">50 per categoria</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-poi" onclick="searchPOI()">📍 Cerca POI</button>
+    </div>
+  </div>
+  <div id="out-poi"></div>
+</div>
+</div>
 
-</div><!-- /wrap -->
+<!-- ══════════════ TAB GASTRONOMIA ══════════════ -->
+<div class="tab-panel" id="tab-gas">
+<div class="wrap">
+  <div class="apibar">
+    <label>🔑 API Key Anthropic</label>
+    <input type="password" id="apikey-gas" placeholder="sk-ant-..." oninput="saveKey(this.value)" />
+    <span class="note">Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser</span>
+    <span class="saved" id="key-saved-gas">✓ salvata</span>
+    <button class="delbtn" onclick="clearKey()">Elimina</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Cerca locali e prodotti tipici</div>
+    <div class="row2">
+      <div class="fld fld-rel">
+        <label>Destinazione</label>
+        <input type="text" id="dest-gas" placeholder="Cerca città..." autocomplete="off"
+          oninput="cityFilter('dest-gas',this.value)" onblur="setTimeout(function(){hideSug('dest-gas')},200)" />
+        <div class="sug-box" id="sug-dest-gas"></div>
+      </div>
+      <div class="fld">
+        <label>Raggio di ricerca (km)</label>
+        <input type="number" id="radius-gas" value="5" min="1" max="50" />
+      </div>
+    </div>
+    <div class="card-title" style="margin-bottom:.5rem;">Categorie</div>
+    <div class="chips">
+      <button class="gcat-chip on" data-gcat="Ristoranti"             onclick="toggleChip(this)">🍴 Ristoranti</button>
+      <button class="gcat-chip on" data-gcat="Bar e Cafè"             onclick="toggleChip(this)">☕ Bar e Cafè</button>
+      <button class="gcat-chip on" data-gcat="Street food"            onclick="toggleChip(this)">🌮 Street food</button>
+      <button class="gcat-chip on" data-gcat="Mercati e prodotti tipici" onclick="toggleChip(this)">🛒 Mercati e prodotti tipici</button>
+      <button class="gcat-chip on" data-gcat="Cantine e degustazioni" onclick="toggleChip(this)">🍷 Cantine e degustazioni</button>
+      <button class="gcat-chip on" data-gcat="Pasticcerie e dolci"    onclick="toggleChip(this)">🧁 Pasticcerie e dolci</button>
+    </div>
+    <div class="opt-row">
+      <div class="fld">
+        <label>Locali per categoria</label>
+        <select id="num-gas">
+          <option value="3">3 per categoria</option>
+          <option value="5" selected>5 per categoria</option>
+          <option value="8">8 per categoria</option>
+          <option value="10">10 per categoria</option>
+          <option value="15">15 per categoria</option>
+          <option value="20">20 per categoria</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Fascia di prezzo</label>
+        <select id="prezzo-gas">
+          <option value="qualsiasi">Qualsiasi</option>
+          <option value="economico">€ Economico</option>
+          <option value="medio">€€ Medio</option>
+          <option value="alto">€€€ Alto</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-gas" onclick="searchGas()">🍽️ Cerca locali</button>
+    </div>
+  </div>
+  <div id="out-gas"></div>
+</div>
+</div>
+
+<!-- ══════════════ TAB TREKKING ══════════════ -->
+<div class="tab-panel" id="tab-trek">
+<div class="wrap">
+  <div class="apibar">
+    <label>🔑 API Key Anthropic</label>
+    <input type="password" id="apikey-trek" placeholder="sk-ant-..." oninput="saveKey(this.value)" />
+    <span class="note">Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser</span>
+    <span class="saved" id="key-saved-trek">✓ salvata</span>
+    <button class="delbtn" onclick="clearKey()">Elimina</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Pianifica le tue escursioni</div>
+    <div class="row2" style="margin-bottom:.8rem;">
+      <div class="fld">
+        <label>Numero di escursioni</label>
+        <select id="giorni-trek">
+          <option value="1">1 escursione</option>
+          <option value="2">2 escursioni</option>
+          <option value="3" selected>3 escursioni</option>
+          <option value="4">4 escursioni</option>
+          <option value="5">5 escursioni</option>
+          <option value="7">7 escursioni</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Difficoltà massima</label>
+        <select id="diff-trek">
+          <option value="facile (T1-T2, adatta a tutti)">Facile — T1/T2, per tutti</option>
+          <option value="media (T3, escursionista allenato)" selected>Media — T3, allenato</option>
+          <option value="impegnativa (T4-T5, esperienza richiesta)">Impegnativa — T4/T5</option>
+          <option value="alpinistica (EE/EEA, attrezzatura specifica)">Alpinistica — EE/EEA</option>
+        </select>
+      </div>
+    </div>
+    <div class="fld" style="margin-bottom:1rem;">
+      <label>📝 Descrivi la zona con parole tue</label>
+      <textarea id="desc-trek" rows="3"
+        placeholder="Es: sentieri sopra Moggio Unico (LC), verso il Rifugio Grassi o il Pizzo dei Tre Signori. Preferisco escursioni con lago o rifugio come meta, niente ferrate. Parto in auto da Moggio."
+        style="width:100%;padding:.6rem .9rem;background:#0a0c12;border:1.5px solid #2e3347;border-radius:8px;font-size:.88rem;color:#e8eaf0;font-family:inherit;outline:none;resize:vertical;line-height:1.5;transition:border-color .2s;"
+        onfocus="this.style.borderColor='#d4a843'" onblur="this.style.borderColor='#2e3347'"></textarea>
+      <div style="font-size:.7rem;color:#7b82a0;margin-top:.35rem;">💡 Più dettagli dai (nome frazione, valle, rifugi noti, tipo di percorso), più preciso sarà il risultato.</div>
+    </div>
+    <div class="card-title" style="margin-bottom:.5rem;">Tipo di percorso</div>
+    <div class="chips" style="margin-bottom:.8rem;">
+      <button class="tcat-chip on" data-tcat="Escursionismo" onclick="toggleChip(this)">🥾 Escursionismo</button>
+      <button class="tcat-chip"    data-tcat="Via ferrata"   onclick="toggleChip(this)">🧗 Via ferrata</button>
+      <button class="tcat-chip"    data-tcat="Alpinismo"     onclick="toggleChip(this)">⛰️ Alpinismo</button>
+    </div>
+    <div class="opt-row">
+      <button class="btn" id="btn-trek" onclick="searchTrek()">🥾 Genera itinerario</button>
+    </div>
+  </div>
+  <div id="out-trek"></div>
+</div>
+</div>
 
 <script>
-// ── salva/carica API key ──────────────────────────────────────
-(function () {
-  var saved = localStorage.getItem("travelai_key");
-  if (saved) document.getElementById("apikey").value = saved;
-})();
+// ── CITIES ────────────────────────────────────────────────────
+var CITIES = [
+  {c:'Aosta',n:'Italia'},{c:'Torino',n:'Italia'},{c:'Milano',n:'Italia'},
+  {c:'Bergamo',n:'Italia'},{c:'Brescia',n:'Italia'},{c:'Como',n:'Italia'},
+  {c:'Lecco',n:'Italia'},{c:'Varese',n:'Italia'},{c:'Sondrio',n:'Italia'},
+  {c:'Pavia',n:'Italia'},{c:'Cremona',n:'Italia'},{c:'Mantova',n:'Italia'},
+  {c:'Verona',n:'Italia'},{c:'Venezia',n:'Italia'},{c:'Padova',n:'Italia'},
+  {c:'Vicenza',n:'Italia'},{c:'Treviso',n:'Italia'},{c:'Belluno',n:'Italia'},
+  {c:'Trento',n:'Italia'},{c:'Bolzano',n:'Italia'},{c:'Trieste',n:'Italia'},
+  {c:'Udine',n:'Italia'},{c:'Pordenone',n:'Italia'},{c:'Gorizia',n:'Italia'},
+  {c:'Genova',n:'Italia'},{c:'La Spezia',n:'Italia'},{c:'Savona',n:'Italia'},
+  {c:'Sanremo',n:'Italia'},{c:'Imperia',n:'Italia'},{c:'Portofino',n:'Italia'},
+  {c:'Cinque Terre',n:'Italia'},{c:'Sestri Levante',n:'Italia'},
+  {c:'Bologna',n:'Italia'},{c:'Ferrara',n:'Italia'},{c:'Modena',n:'Italia'},
+  {c:'Parma',n:'Italia'},{c:'Reggio Emilia',n:'Italia'},{c:'Piacenza',n:'Italia'},
+  {c:'Ravenna',n:'Italia'},{c:'Rimini',n:'Italia'},{c:'Riccione',n:'Italia'},
+  {c:'Cesenatico',n:'Italia'},{c:'Forlì',n:'Italia'},{c:'Cesena',n:'Italia'},
+  {c:'Firenze',n:'Italia'},{c:'Pisa',n:'Italia'},{c:'Siena',n:'Italia'},
+  {c:'Lucca',n:'Italia'},{c:'Arezzo',n:'Italia'},{c:'Grosseto',n:'Italia'},
+  {c:'Livorno',n:'Italia'},{c:'Forte dei Marmi',n:'Italia'},{c:'Viareggio',n:'Italia'},
+  {c:'Montalcino',n:'Italia'},{c:'Montepulciano',n:'Italia'},{c:'San Gimignano',n:'Italia'},
+  {c:'Volterra',n:'Italia'},{c:'Cortona',n:'Italia'},{c:'Pienza',n:'Italia'},
+  {c:'Perugia',n:'Italia'},{c:'Assisi',n:'Italia'},{c:'Orvieto',n:'Italia'},
+  {c:'Spoleto',n:'Italia'},{c:'Gubbio',n:'Italia'},{c:'Todi',n:'Italia'},
+  {c:'Roma',n:'Italia'},{c:'Viterbo',n:'Italia'},{c:'Tivoli',n:'Italia'},
+  {c:'Latina',n:'Italia'},{c:'Rieti',n:'Italia'},
+  {c:'Ancona',n:'Italia'},{c:'Pesaro',n:'Italia'},{c:'Urbino',n:'Italia'},
+  {c:'Macerata',n:'Italia'},{c:'Ascoli Piceno',n:'Italia'},
+  {c:'Napoli',n:'Italia'},{c:'Salerno',n:'Italia'},{c:'Caserta',n:'Italia'},
+  {c:'Sorrento',n:'Italia'},{c:'Positano',n:'Italia'},{c:'Amalfi',n:'Italia'},
+  {c:'Ravello',n:'Italia'},{c:'Capri',n:'Italia'},{c:'Ischia',n:'Italia'},
+  {c:'Procida',n:'Italia'},{c:'Pompei',n:'Italia'},{c:'Paestum',n:'Italia'},
+  {c:'Bari',n:'Italia'},{c:'Lecce',n:'Italia'},{c:'Brindisi',n:'Italia'},
+  {c:'Taranto',n:'Italia'},{c:'Foggia',n:'Italia'},{c:'Alberobello',n:'Italia'},
+  {c:'Ostuni',n:'Italia'},{c:'Gallipoli',n:'Italia'},{c:'Otranto',n:'Italia'},
+  {c:'Matera',n:'Italia'},{c:'Potenza',n:'Italia'},{c:'Maratea',n:'Italia'},
+  {c:'Reggio Calabria',n:'Italia'},{c:'Tropea',n:'Italia'},{c:'Scilla',n:'Italia'},
+  {c:'Cosenza',n:'Italia'},{c:'Catanzaro',n:'Italia'},{c:'Pizzo',n:'Italia'},
+  {c:"L'Aquila",n:'Italia'},{c:'Pescara',n:'Italia'},{c:'Chieti',n:'Italia'},
+  {c:'Teramo',n:'Italia'},{c:'Lanciano',n:'Italia'},{c:'Vasto',n:'Italia'},
+  {c:'Campobasso',n:'Italia'},{c:'Isernia',n:'Italia'},
+  {c:'Palermo',n:'Italia'},{c:'Catania',n:'Italia'},{c:'Messina',n:'Italia'},
+  {c:'Siracusa',n:'Italia'},{c:'Agrigento',n:'Italia'},{c:'Trapani',n:'Italia'},
+  {c:'Marsala',n:'Italia'},{c:'Taormina',n:'Italia'},{c:'Ragusa',n:'Italia'},
+  {c:'Noto',n:'Italia'},{c:'Modica',n:'Italia'},{c:'Cefalù',n:'Italia'},
+  {c:'Erice',n:'Italia'},{c:'Favignana',n:'Italia'},{c:'Lipari',n:'Italia'},
+  {c:'Stromboli',n:'Italia'},{c:'Pantelleria',n:'Italia'},{c:'Lampedusa',n:'Italia'},
+  {c:'Cagliari',n:'Italia'},{c:'Olbia',n:'Italia'},{c:'Sassari',n:'Italia'},
+  {c:'Alghero',n:'Italia'},{c:'Nuoro',n:'Italia'},{c:'Oristano',n:'Italia'},
+  {c:'Porto Cervo',n:'Italia'},{c:'San Teodoro',n:'Italia'},{c:'Villasimius',n:'Italia'},
+  {c:'Pula',n:'Italia'},{c:'Bosa',n:'Italia'},{c:'Castelsardo',n:'Italia'},
+  {c:'Parigi',n:'Francia'},{c:'Lione',n:'Francia'},{c:'Marsiglia',n:'Francia'},
+  {c:'Nizza',n:'Francia'},{c:'Bordeaux',n:'Francia'},{c:'Cannes',n:'Francia'},
+  {c:'Monaco',n:'Francia'},{c:'Ajaccio',n:'Francia'},{c:'Biarritz',n:'Francia'},
+  {c:'Barcellona',n:'Spagna'},{c:'Madrid',n:'Spagna'},{c:'Siviglia',n:'Spagna'},
+  {c:'Valencia',n:'Spagna'},{c:'Malaga',n:'Spagna'},{c:'Alicante',n:'Spagna'},
+  {c:'Bilbao',n:'Spagna'},{c:'Granada',n:'Spagna'},{c:'Toledo',n:'Spagna'},
+  {c:'Palma di Maiorca',n:'Spagna'},{c:'Ibiza',n:'Spagna'},{c:'Minorca',n:'Spagna'},
+  {c:'Tenerife',n:'Spagna'},{c:'Gran Canaria',n:'Spagna'},{c:'Lanzarote',n:'Spagna'},
+  {c:'Fuerteventura',n:'Spagna'},{c:'La Palma',n:'Spagna'},
+  {c:'Londra',n:'UK'},{c:'Edimburgo',n:'UK'},{c:'Manchester',n:'UK'},
+  {c:'Liverpool',n:'UK'},{c:'Bath',n:'UK'},{c:'Oxford',n:'UK'},{c:'Brighton',n:'UK'},
+  {c:'Dublino',n:'Irlanda'},{c:'Galway',n:'Irlanda'},{c:'Cork',n:'Irlanda'},
+  {c:'Berlino',n:'Germania'},{c:'Monaco di Baviera',n:'Germania'},
+  {c:'Amburgo',n:'Germania'},{c:'Francoforte',n:'Germania'},
+  {c:'Colonia',n:'Germania'},{c:'Dresda',n:'Germania'},{c:'Heidelberg',n:'Germania'},
+  {c:'Amsterdam',n:'Paesi Bassi'},{c:'Rotterdam',n:'Paesi Bassi'},
+  {c:'Utrecht',n:'Paesi Bassi'},{c:'Maastricht',n:'Paesi Bassi'},
+  {c:'Bruxelles',n:'Belgio'},{c:'Bruges',n:'Belgio'},{c:'Gand',n:'Belgio'},
+  {c:'Anversa',n:'Belgio'},
+  {c:'Lisbona',n:'Portogallo'},{c:'Porto',n:'Portogallo'},{c:'Faro',n:'Portogallo'},
+  {c:'Sintra',n:'Portogallo'},{c:'Coimbra',n:'Portogallo'},{c:'Madeira',n:'Portogallo'},
+  {c:'Vienna',n:'Austria'},{c:'Salisburgo',n:'Austria'},{c:'Innsbruck',n:'Austria'},
+  {c:'Graz',n:'Austria'},{c:'Hallstatt',n:'Austria'},{c:'Zell am See',n:'Austria'},
+  {c:'Zurigo',n:'Svizzera'},{c:'Ginevra',n:'Svizzera'},{c:'Berna',n:'Svizzera'},
+  {c:'Lugano',n:'Svizzera'},{c:'Lucerna',n:'Svizzera'},{c:'Interlaken',n:'Svizzera'},
+  {c:'Zermatt',n:'Svizzera'},{c:'St. Moritz',n:'Svizzera'},
+  {c:'Praga',n:'Rep. Ceca'},{c:'Budapest',n:'Ungheria'},{c:'Varsavia',n:'Polonia'},
+  {c:'Cracovia',n:'Polonia'},{c:'Bratislava',n:'Slovacchia'},
+  {c:'Zagabria',n:'Croazia'},{c:'Spalato',n:'Croazia'},{c:'Dubrovnik',n:'Croazia'},
+  {c:'Hvar',n:'Croazia'},{c:'Zara',n:'Croazia'},{c:'Rovigno',n:'Croazia'},
+  {c:'Kotor',n:'Montenegro'},{c:'Budva',n:'Montenegro'},
+  {c:'Atene',n:'Grecia'},{c:'Salonicco',n:'Grecia'},{c:'Rodi',n:'Grecia'},
+  {c:'Creta',n:'Grecia'},{c:'Corfù',n:'Grecia'},{c:'Santorini',n:'Grecia'},
+  {c:'Mykonos',n:'Grecia'},{c:'Cefalonia',n:'Grecia'},{c:'Zante',n:'Grecia'},
+  {c:'Istanbul',n:'Turchia'},{c:'Antalya',n:'Turchia'},{c:'Bodrum',n:'Turchia'},
+  {c:'Cappadocia',n:'Turchia'},
+  {c:'Oslo',n:'Norvegia'},{c:'Bergen',n:'Norvegia'},{c:'Tromso',n:'Norvegia'},
+  {c:'Stoccolma',n:'Svezia'},{c:'Goteborg',n:'Svezia'},
+  {c:'Copenhagen',n:'Danimarca'},{c:'Helsinki',n:'Finlandia'},
+  {c:'Rovaniemi',n:'Finlandia'},{c:'Reykjavik',n:'Islanda'},
+  {c:'Tallinn',n:'Estonia'},{c:'Riga',n:'Lettonia'},{c:'Vilnius',n:'Lituania'},
+  {c:'Malta',n:'Malta'},{c:'Valletta',n:'Malta'},{c:'Gozo',n:'Malta'},
+  {c:'Nicosia',n:'Cipro'},{c:'Limassol',n:'Cipro'},{c:'Paphos',n:'Cipro'},
+  {c:'Marrakech',n:'Marocco'},{c:'Fes',n:'Marocco'},{c:'Casablanca',n:'Marocco'},
+  {c:'Chefchaouen',n:'Marocco'},{c:'Essaouira',n:'Marocco'},
+  {c:'Cairo',n:'Egitto'},{c:'Luxor',n:'Egitto'},{c:'Sharm el-Sheikh',n:'Egitto'},
+  {c:'Dubai',n:'Emirati Arabi'},{c:'Abu Dhabi',n:'Emirati Arabi'},
+  {c:'Tel Aviv',n:'Israele'},{c:'Gerusalemme',n:'Israele'},
+  {c:'Nairobi',n:'Kenya'},{c:'Zanzibar',n:'Tanzania'},
+  {c:'Johannesburg',n:'Sud Africa'},{c:'Città del Capo',n:'Sud Africa'},
+  {c:'Tokyo',n:'Giappone'},{c:'Kyoto',n:'Giappone'},{c:'Osaka',n:'Giappone'},
+  {c:'Hiroshima',n:'Giappone'},{c:'Nara',n:'Giappone'},
+  {c:'Bangkok',n:'Tailandia'},{c:'Chiang Mai',n:'Tailandia'},{c:'Phuket',n:'Tailandia'},
+  {c:'Koh Samui',n:'Tailandia'},{c:'Krabi',n:'Tailandia'},
+  {c:'Bali',n:'Indonesia'},{c:'Yogyakarta',n:'Indonesia'},
+  {c:'Kuala Lumpur',n:'Malaysia'},{c:'Penang',n:'Malaysia'},
+  {c:'Singapore',n:'Singapore'},{c:'Hong Kong',n:'Cina'},{c:'Shanghai',n:'Cina'},
+  {c:'Pechino',n:'Cina'},{c:'Seoul',n:'Corea del Sud'},
+  {c:'Mumbai',n:'India'},{c:'Delhi',n:'India'},{c:'Goa',n:'India'},
+  {c:'Jaipur',n:'India'},{c:'Agra',n:'India'},{c:'Varanasi',n:'India'},
+  {c:'Colombo',n:'Sri Lanka'},{c:'Kandy',n:'Sri Lanka'},
+  {c:'Hanoi',n:'Vietnam'},{c:'Ho Chi Minh',n:'Vietnam'},{c:'Hoi An',n:'Vietnam'},
+  {c:'Siem Reap',n:'Cambogia'},{c:'Kathmandu',n:'Nepal'},{c:'Pokhara',n:'Nepal'},
+  {c:'Male',n:'Maldive'},{c:'Bora Bora',n:'Polinesia Francese'},
+  {c:'New York',n:'USA'},{c:'Los Angeles',n:'USA'},{c:'Miami',n:'USA'},
+  {c:'San Francisco',n:'USA'},{c:'Chicago',n:'USA'},{c:'Las Vegas',n:'USA'},
+  {c:'New Orleans',n:'USA'},{c:'Boston',n:'USA'},{c:'Washington',n:'USA'},
+  {c:'Seattle',n:'USA'},{c:'Honolulu',n:'USA'},
+  {c:'Cancun',n:'Messico'},{c:'Tulum',n:'Messico'},{c:'Città del Messico',n:'Messico'},
+  {c:'Oaxaca',n:'Messico'},
+  {c:'Buenos Aires',n:'Argentina'},{c:'Mendoza',n:'Argentina'},{c:'Bariloche',n:'Argentina'},
+  {c:'Rio de Janeiro',n:'Brasile'},{c:'San Paolo',n:'Brasile'},
+  {c:'Lima',n:'Peru'},{c:'Cusco',n:'Peru'},{c:'Machu Picchu',n:'Peru'},
+  {c:'Bogota',n:'Colombia'},{c:'Cartagena',n:'Colombia'},
+  {c:'Havana',n:'Cuba'},{c:'Toronto',n:'Canada'},{c:'Vancouver',n:'Canada'},
+  {c:'Montreal',n:'Canada'},
+  {c:'Sydney',n:'Australia'},{c:'Melbourne',n:'Australia'},{c:'Cairns',n:'Australia'},
+  {c:'Auckland',n:'Nuova Zelanda'},{c:'Queenstown',n:'Nuova Zelanda'}
+];
 
-function saveKey() {
-  var k = document.getElementById("apikey").value.trim();
-  if (k) localStorage.setItem("travelai_key", k);
+// ── TAB SWITCH ────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tabnav button').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-'+id).classList.add('active');
+  var btns = document.querySelectorAll('.tabnav button');
+  var map = {tra:0, poi:1, gas:2, trek:3};
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
 }
 
-// ── API Key localStorage ──────────────────────────────────────
-function saveKey(val) {
-  if (val) {
-    localStorage.setItem('travel_ai_key', val);
-    document.getElementById('key-status').style.display = 'inline';
+// ── API KEY ───────────────────────────────────────────────────
+function saveKey(v) {
+  if (v) {
+    localStorage.setItem('tai_key', v);
+    ['tra','poi','gas','trek'].forEach(function(t){
+      document.getElementById('apikey-'+t).value = v;
+      document.getElementById('key-saved-'+t).style.display = 'inline';
+    });
   } else {
-    localStorage.removeItem('travel_ai_key');
-    document.getElementById('key-status').style.display = 'none';
+    localStorage.removeItem('tai_key');
+    document.querySelectorAll('.saved').forEach(function(el){ el.style.display='none'; });
   }
 }
-
 function clearKey() {
-  localStorage.removeItem('travel_ai_key');
-  document.getElementById('apikey').value = '';
-  document.getElementById('key-status').style.display = 'none';
+  localStorage.removeItem('tai_key');
+  ['tra','poi','gas','trek'].forEach(function(t){
+    document.getElementById('apikey-'+t).value = '';
+    document.getElementById('key-saved-'+t).style.display = 'none';
+  });
 }
-
-// load on page open
-(function () {
-  var saved = localStorage.getItem('travel_ai_key');
-  if (saved) {
-    document.getElementById('apikey').value = saved;
-    document.getElementById('key-status').style.display = 'inline';
+function getKey() { return localStorage.getItem('tai_key') || ''; }
+(function(){
+  var k = localStorage.getItem('tai_key');
+  if (k) {
+    ['tra','poi','gas','trek'].forEach(function(t){
+      document.getElementById('apikey-'+t).value = k;
+      document.getElementById('key-saved-'+t).style.display = 'inline';
+    });
   }
 })();
 
-// ── date defaults ──────────────────────────────────────────────
-(function () {
-  var out = new Date();
-  out.setDate(out.getDate() + 30);
+// ── DATE DEFAULTS ─────────────────────────────────────────────
+(function(){
+  var out = new Date(); out.setDate(out.getDate()+30);
   document.getElementById('date-out').valueAsDate = out;
-
-  var ret = new Date(out);
-  ret.setDate(ret.getDate() + 7);
+  var ret = new Date(out); ret.setDate(ret.getDate()+7);
   document.getElementById('date-ret').valueAsDate = ret;
 })();
 
-// ── trip type toggle ───────────────────────────────────────────
+// ── TRIP TYPE ─────────────────────────────────────────────────
 var tripType = 'ow';
-
 function setTrip(t) {
   tripType = t;
-  document.getElementById('chip-ow').classList[t === 'ow' ? 'add' : 'remove']('on');
-  document.getElementById('chip-rt').classList[t === 'rt' ? 'add' : 'remove']('on');
-  var wrap = document.getElementById('ret-wrap');
-  if (t === 'rt') {
-    wrap.style.opacity = '1';
-    wrap.style.pointerEvents = 'auto';
-  } else {
-    wrap.style.opacity = '.3';
-    wrap.style.pointerEvents = 'none';
+  document.getElementById('chip-ow').classList[t==='ow'?'add':'remove']('on');
+  document.getElementById('chip-rt').classList[t==='rt'?'add':'remove']('on');
+  var w = document.getElementById('ret-wrap');
+  w.style.opacity = t==='rt'?'1':'.3';
+  w.style.pointerEvents = t==='rt'?'auto':'none';
+}
+
+// ── CITY AUTOCOMPLETE ─────────────────────────────────────────
+function cityFilter(id, val) {
+  var box = document.getElementById('sug-'+id);
+  if (!val) { box.style.display='none'; return; }
+  var lo = val.toLowerCase();
+  var hits = CITIES.filter(function(x){
+    return x.c.toLowerCase().indexOf(lo)!==-1 || x.n.toLowerCase().indexOf(lo)!==-1;
+  }).slice(0,8);
+  if (!hits.length) { box.style.display='none'; return; }
+  box.innerHTML = hits.map(function(x){
+    var safe = x.c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="sug-item" onmousedown="pickCity(\''+id+'\',\''+safe+'\')">'+
+      x.c+'<span class="ctry">'+x.n+'</span></div>';
+  }).join('');
+  box.style.display='block';
+}
+function pickCity(id, val) {
+  document.getElementById(id).value = val;
+  hideSug(id);
+}
+function hideSug(id) {
+  var b = document.getElementById('sug-'+id);
+  if (b) b.style.display='none';
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────
+function toggleChip(btn) { btn.classList.toggle('on'); }
+
+function getActiveCats(selector) {
+  return Array.from(document.querySelectorAll(selector+'.on')).map(function(c){
+    return c.getAttribute('data-cat') || c.getAttribute('data-gcat') || c.getAttribute('data-tcat');
+  });
+}
+
+// ── ROBUST JSON PARSER ────────────────────────────────────────
+function parseJSON(text) {
+  try { var a=JSON.parse(text); if(Array.isArray(a)) return a; } catch(e){}
+  var m=text.match(/\[[\s\S]*\]/);
+  if (!m) throw new Error('Nessun JSON trovato nella risposta.');
+  var raw=m[0];
+  try { return JSON.parse(raw); } catch(e){}
+  var fixed=raw.replace(/,\s*([}\]])/g,'$1').replace(/\t/g,' ');
+  try { return JSON.parse(fixed); } catch(e){}
+  var objs=[],depth=0,start=-1;
+  for(var i=0;i<raw.length;i++){
+    if(raw[i]==='{'){if(depth===0)start=i;depth++;}
+    else if(raw[i]==='}'){depth--;if(depth===0&&start!==-1){try{objs.push(JSON.parse(raw.slice(start,i+1)));}catch(e){}start=-1;}}
   }
+  if(objs.length) return objs;
+  throw new Error('JSON non valido: '+raw.slice(0,120));
 }
 
-// ── helpers ────────────────────────────────────────────────────
-function esc(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// ── API CALL ──────────────────────────────────────────────────
+function callAPI(sys, usr, maxTok, outId, btnId, btnLabel, callback) {
+  var key = getKey();
+  if (!key) { alert('Inserisci la tua API Key Anthropic.'); return; }
+  var btn = document.getElementById(btnId);
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner" style="border-top-color:#0f1117;width:16px;height:16px;border-width:2px;"></div> Ricerca...';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-5-20250929',
+      max_tokens:maxTok,
+      system:sys,
+      messages:[{role:'user',content:usr}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error) throw new Error(data.error.message);
+    var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    if(!text) throw new Error('Risposta vuota — riprova.');
+    callback(null,text);
+  })
+  .catch(function(e){
+    document.getElementById(outId).innerHTML='<div class="errmsg">❌ '+esc(e.message)+'</div>';
+  })
+  .finally(function(){
+    btn.disabled=false;
+    btn.innerHTML=btnLabel;
+  });
 }
 
-function showLoading(msg) {
-  document.getElementById('output').innerHTML =
-    '<div class="loading"><div class="spinner"></div>' + esc(msg) + '</div>';
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function showError(msg) {
-  document.getElementById('output').innerHTML =
-    '<div class="errmsg">&#10060; ' + esc(msg) + '</div>';
+// ── SHARED CARD RENDERER ──────────────────────────────────────
+var POI_COLORS={
+  'Cultura e Storia':'#a78bfa','Natura e Paesaggi':'#4ade80',
+  'Spiagge e Mare':'#38bdf8','Sport e Avventura':'#f87171',
+  'Ristoranti':'#fb923c','Bar e Cafè':'#f59e0b','Street food':'#84cc16',
+  'Mercati e prodotti tipici':'#e879f9','Cantine e degustazioni':'#c084fc',
+  'Pasticcerie e dolci':'#f472b6'
+};
+var POI_ICONS={
+  'Cultura e Storia':'🏛️','Natura e Paesaggi':'🌿',
+  'Spiagge e Mare':'🏖️','Sport e Avventura':'🏄',
+  'Ristoranti':'🍴','Bar e Cafè':'☕','Street food':'🌮',
+  'Mercati e prodotti tipici':'🛒','Cantine e degustazioni':'🍷',
+  'Pasticcerie e dolci':'🧁'
+};
+
+function renderCards(arr, cats, outId, catKey) {
+  var groups={};
+  cats.forEach(function(c){groups[c]=[];});
+  arr.forEach(function(p){
+    var cat = p[catKey]||p.categoria||p.sottocategoria||'';
+    if(groups[cat]) groups[cat].push(p);
+  });
+  var html='';
+  cats.forEach(function(cat){
+    var items=groups[cat]||[];
+    if(!items.length) return;
+    var color=POI_COLORS[cat]||'#d4a843';
+    var ico=POI_ICONS[cat]||'📍';
+    html+='<div class="cat-section">';
+    html+='<div class="cat-header" style="color:'+color+'"><span>'+ico+'</span><span>'+esc(cat)+'</span><span class="cat-count">('+items.length+')</span></div>';
+    html+='<div class="poi-grid">';
+    items.forEach(function(p){
+      var wiki=(p.wiki||'').replace(/ /g,'_');
+      var imgUrl=wiki?'https://en.wikipedia.org/wiki/Special:Redirect/file/'+encodeURIComponent(wiki)+'.jpg':'';
+      html+='<div class="poi-card" data-cat="'+esc(p[catKey]||p.categoria||'')+'">';
+      if(imgUrl){
+        html+='<img class="poi-img" src="'+imgUrl+'" alt="'+esc(p.nome)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" />';
+        html+='<div class="poi-img-fallback" style="display:none">'+(p.emoji||'📍')+'</div>';
+      } else {
+        html+='<div class="poi-img-fallback">'+(p.emoji||'📍')+'</div>';
+      }
+      html+='<div class="poi-body">';
+      html+='<div class="poi-name">'+esc(p.nome)+'</div>';
+      if(p.dist) html+='<div class="poi-dist">📏 '+esc(String(p.dist))+' km dal centro</div>';
+      if(p.indirizzo) html+='<div class="poi-dist">📍 '+esc(p.indirizzo)+'</div>';
+      html+='<div class="poi-desc">'+esc(p.desc||p.descrizione||'')+'</div>';
+      if(p.prezzo_medio) html+='<div class="poi-price">💶 '+esc(p.prezzo_medio)+'</div>';
+      if(p.tags&&p.tags.length){
+        html+='<div class="poi-tags">';
+        p.tags.forEach(function(t){html+='<span class="poi-tag">'+esc(t)+'</span>';});
+        html+='</div>';
+      }
+      html+='</div></div>';
+    });
+    html+='</div></div>';
+  });
+  document.getElementById(outId).innerHTML=html||'<div class="errmsg">Nessun risultato trovato.</div>';
 }
 
-// ── main search ────────────────────────────────────────────────
-function doSearch() {
-  var key   = document.getElementById('apikey').value.trim();
-  var from  = document.getElementById('from').value.trim();
-  var dest  = document.getElementById('dest').value.trim();
-  var dOut  = document.getElementById('date-out').value;
-  var dRet  = document.getElementById('date-ret').value;
-  var pax   = document.getElementById('pax').value;
-  var cls   = document.getElementById('classe').value;
-  var isRT  = (tripType === 'rt');
+// ── TRASPORTI ─────────────────────────────────────────────────
+var ICONS={aereo:'✈️',treno:'🚆',auto:'🚗',traghetto:'⛴️',bus:'🚌'};
 
-  if (!key)  { alert('Inserisci la tua API Key Anthropic.'); return; }
-  if (!from) { alert('Inserisci la città di partenza.'); return; }
-  if (!dest) { alert('Inserisci la destinazione.'); return; }
+function searchTra() {
+  var from=document.getElementById('from').value.trim();
+  var dest=document.getElementById('dest-tra').value.trim();
+  var dOut=document.getElementById('date-out').value;
+  var dRet=document.getElementById('date-ret').value;
+  var pax=document.getElementById('pax').value;
+  var cls=document.getElementById('classe').value;
+  var isRT=(tripType==='rt');
+  if(!from){alert('Inserisci la città di partenza.');return;}
+  if(!dest){alert('Inserisci la destinazione.');return;}
+  document.getElementById('out-tra').innerHTML='<div class="loading"><div class="spinner"></div>Cerco le migliori soluzioni di trasporto...</div>';
+  var tripStr=isRT?'andata e ritorno':'solo andata';
+  var dateInfo=dOut?'Partenza: '+dOut:'';
+  if(isRT&&dRet) dateInfo+=' — Ritorno: '+dRet;
+  var SYS='Sei un esperto di trasporti. Rispondi SOLO con array JSON valido, zero testo fuori. Campi: tipo (aereo/treno/bus/traghetto/auto), compagnia, dettaglio, durata, prezzo (es. "da 80€"), link (URL reale), note. Se A/R aggiungi prezzo_ar.';
+  var USR='Trova tutte le opzioni di trasporto ('+tripStr+') da '+from+' a '+dest+'. '+dateInfo+'. Passeggeri: '+pax+'. Classe: '+cls+'. 4-7 opzioni ordinate per praticità. SOLO JSON array.';
+  callAPI(SYS,USR,1500,'out-tra','btn-tra','🔍 Cerca trasporti',function(err,text){
+    if(err) return;
+    try{
+      var arr=parseJSON(text);
+      var html='<div class="results">';
+      arr.forEach(function(t){
+        html+='<div class="tr-card">';
+        html+='<div class="tr-icon">'+(ICONS[t.tipo]||'🚌')+'</div>';
+        html+='<div class="tr-body"><h3>'+esc(t.compagnia||t.tipo)+'</h3>';
+        html+='<div class="detail">'+esc(t.dettaglio||'')+'</div>';
+        if(t.note) html+='<div class="tr-note">ℹ️ '+esc(t.note)+'</div>';
+        if(t.link) html+='<a class="tr-link" href="'+esc(t.link)+'" target="_blank">Prenota ↗</a>';
+        html+='</div>';
+        html+='<div class="tr-meta"><div class="tr-price">'+esc(t.prezzo||'')+'</div>';
+        if(isRT&&t.prezzo_ar) html+='<div class="tr-price-ar">A/R '+esc(t.prezzo_ar)+'</div>';
+        html+='<div class="tr-dur">'+esc(t.durata||'')+'</div></div></div>';
+      });
+      html+='</div>';
+      document.getElementById('out-tra').innerHTML=html;
+    }catch(e){document.getElementById('out-tra').innerHTML='<div class="errmsg">❌ '+esc(e.message)+'</div>';}
+  });
+}
 
-  var btn = document.getElementById('btn-go');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#0f1117;"></div> Ricerca...';
+// ── POI ───────────────────────────────────────────────────────
+function searchPOI() {
+  var dest=document.getElementById('dest-poi').value.trim();
+  var radius=document.getElementById('radius-poi').value||'15';
+  var num=document.getElementById('num-poi').value||'5';
+  var cats=getActiveCats('.cat-chip');
+  if(!dest){alert('Inserisci la destinazione.');return;}
+  if(!cats.length){alert('Seleziona almeno una categoria.');return;}
+  document.getElementById('out-poi').innerHTML='<div class="loading"><div class="spinner"></div>Cerco i punti di interesse a '+esc(dest)+'...</div>';
+  var SYS='Sei una guida turistica. Rispondi SOLO con array JSON valido, zero testo fuori. Campi: nome, categoria (esattamente una tra: '+cats.join(', ')+'), dist (km, numero), desc (2-3 frasi italiano), emoji, tags (array 2-4 stringhe), wiki (nome file immagine Wikipedia senza estensione, vuoto se non sai).';
+  var USR='Elenca '+num+' POI reali per OGNUNA di queste categorie entro '+radius+' km da '+dest+': '+cats.join(', ')+'. SOLO JSON array.';
+  var maxTok=Math.min(8000,1000+parseInt(num)*cats.length*150);
+  callAPI(SYS,USR,maxTok,'out-poi','btn-poi','📍 Cerca POI',function(err,text){
+    if(err) return;
+    try{ renderCards(parseJSON(text),cats,'out-poi','categoria'); }
+    catch(e){ document.getElementById('out-poi').innerHTML='<div class="errmsg">❌ '+esc(e.message)+'</div>'; }
+  });
+}
 
-  showLoading('Cerco le migliori soluzioni di trasporto in tempo reale...');
+// ── GASTRONOMIA ───────────────────────────────────────────────
+function searchGas() {
+  var dest=document.getElementById('dest-gas').value.trim();
+  var radius=document.getElementById('radius-gas').value||'5';
+  var num=document.getElementById('num-gas').value||'5';
+  var prezzo=document.getElementById('prezzo-gas').value;
+  var cats=getActiveCats('.gcat-chip');
+  if(!dest){alert('Inserisci la destinazione.');return;}
+  if(!cats.length){alert('Seleziona almeno una categoria.');return;}
+  document.getElementById('out-gas').innerHTML='<div class="loading"><div class="spinner"></div>Cerco locali e prodotti tipici a '+esc(dest)+'...</div>';
+  var prezzoStr=prezzo==='qualsiasi'?'qualsiasi fascia di prezzo':'fascia '+prezzo;
+  var SYS='Sei un esperto gastronomico. Rispondi SOLO con array JSON valido, zero testo fuori. Campi: nome, categoria (esattamente una tra: '+cats.join(', ')+'), dist (km dal centro, numero), indirizzo (stringa), desc (2-3 frasi italiano), prezzo_medio (es. "15-25€ a persona"), emoji, tags (array 2-4 stringhe), wiki (nome file immagine Wikipedia senza estensione, vuoto se non sai).';
+  var USR='Elenca '+num+' locali/luoghi reali per OGNUNA di queste categorie entro '+radius+' km dal centro di '+dest+': '+cats.join(', ')+'. Fascia prezzo: '+prezzoStr+'. SOLO JSON array.';
+  var maxTok=Math.min(8000,1000+parseInt(num)*cats.length*180);
+  callAPI(SYS,USR,maxTok,'out-gas','btn-gas','🍽️ Cerca locali',function(err,text){
+    if(err) return;
+    try{ renderCards(parseJSON(text),cats,'out-gas','categoria'); }
+    catch(e){ document.getElementById('out-gas').innerHTML='<div class="errmsg">❌ '+esc(e.message)+'</div>'; }
+  });
+}
 
-  var tripStr  = isRT ? 'andata e ritorno' : 'solo andata';
-  var dateInfo = dOut ? 'Partenza: ' + dOut : '';
-  if (isRT && dRet) dateInfo += ' — Ritorno: ' + dRet;
+// ── TREKKING ──────────────────────────────────────────────────
+function searchTrek() {
+  var descLibera = (document.getElementById('desc-trek').value || '').trim();
+  var giorni = document.getElementById('giorni-trek').value;
+  var diff   = document.getElementById('diff-trek').value;
+  if (!descLibera) { alert('Descrivi la zona nel campo testo.'); return; }
 
-  var SYS = 'Sei un esperto di trasporti. Rispondi ESCLUSIVAMENTE con un array JSON valido, zero testo fuori dal JSON. Ogni oggetto deve avere questi campi: tipo (aereo/treno/auto/traghetto/bus), compagnia (nome reale), dettaglio (percorso dettagliato es. MXP→MAD→SPC con scalo 2h a Madrid), durata (es. "~6h totali"), prezzo (es. "da 180€"), link (URL reale e funzionante del sito di prenotazione), note (consiglio pratico). Se il viaggio è andata e ritorno aggiungi anche prezzo_ar (prezzo totale A/R).';
+  var tipi = Array.from(document.querySelectorAll('.tcat-chip.on')).map(function(b){ return b.getAttribute('data-tcat'); });
+  if (!tipi.length) { alert('Seleziona almeno un tipo di percorso.'); return; }
 
-  var USR = 'Trova TUTTE le opzioni reali di trasporto (' + tripStr + ') da ' + from + ' a ' + dest + '. ' + dateInfo + '. Considera: voli diretti, voli con scalo, treni, autobus, traghetti e combinazioni. Passeggeri: ' + pax + '. Classe: ' + cls + '. Usa la web search per trovare compagnie reali, orari e prezzi aggiornati. Restituisci 4-7 opzioni ordinate dalla più pratica. SOLO array JSON.';
+  var key = localStorage.getItem('tai_key');
+  if (!key) { alert('Inserisci la tua API Key Anthropic.'); return; }
+
+  var out = document.getElementById('out-trek');
+  out.innerHTML = '<div class="loading"><div class="spinner"></div>📍 Geocodifica la zona...</div>';
+  document.getElementById('btn-trek').disabled = true;
+
+  // ── Step 1: Nominatim → coordinate ──────────────────────────
+  // Estrai la prima riga come query di geocodifica
+  var geocodeQuery = descLibera.split('\n')[0].slice(0, 100);
+  // Prendi le prime 3-5 parole significative per Nominatim
+  var words = geocodeQuery.replace(/[()]/g, '').split(/\s+/).slice(0, 5).join(' ');
+
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=' + encodeURIComponent(words), {
+    headers: { 'Accept-Language': 'it', 'User-Agent': 'TravelAI/1.0' }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(places){
+    if (!places || !places.length) {
+      // Nominatim non ha trovato nulla: fallback senza OSM
+      out.innerHTML = '<div class="loading"><div class="spinner"></div>⚠️ Zona non trovata su mappa, genero con dati AI...</div>';
+      return callClaudeTrek(key, descLibera, giorni, diff, tipi, null, out);
+    }
+    var lat = parseFloat(places[0].lat);
+    var lon = parseFloat(places[0].lon);
+    out.innerHTML = '<div class="loading"><div class="spinner"></div>🗺️ Cerco rifugi e laghi su OpenStreetMap...</div>';
+    return fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out);
+  })
+  .catch(function(e){
+    // Nominatim bloccato (CORS / offline): fallback diretto
+    out.innerHTML = '<div class="loading"><div class="spinner"></div>⚠️ OSM non raggiungibile, genero con dati AI...</div>';
+    callClaudeTrek(key, descLibera, giorni, diff, tipi, null, out);
+  });
+}
+
+function fetchOsmData(key, lat, lon, descLibera, giorni, diff, tipi, out) {
+  // Raggio 15 km attorno alle coordinate
+  var r = 0.135; // ~15km in gradi
+  var s = (lat-r).toFixed(4), w = (lon-r).toFixed(4);
+  var n = (lat+r).toFixed(4), e = (lon+r).toFixed(4);
+  var bbox = s+','+w+','+n+','+e;
+
+  var overpassQuery = '[out:json][timeout:20];(' +
+    'node["tourism"="alpine_hut"](' + bbox + ');' +
+    'node["natural"="peak"](' + bbox + ');' +
+    'node["natural"="water"]["water"="lake"](' + bbox + ');' +
+    'node["natural"="lake"](' + bbox + ');' +
+    ');out body 60;';
+
+  fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST',
+    body: 'data=' + encodeURIComponent(overpassQuery)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    var elements = data.elements || [];
+    var osmCtx = buildOsmContext(elements, lat, lon);
+    out.innerHTML = '<div class="loading"><div class="spinner"></div>🤖 Costruisco l\'itinerario con ' + elements.length + ' punti OSM...</div>';
+    callClaudeTrek(key, descLibera, giorni, diff, tipi, osmCtx, out);
+  })
+  .catch(function(e){
+    out.innerHTML = '<div class="loading"><div class="spinner"></div>⚠️ Overpass non raggiungibile, genero con dati AI...</div>';
+    callClaudeTrek(key, descLibera, giorni, diff, tipi, null, out);
+  });
+}
+
+function buildOsmContext(elements, centerLat, centerLon) {
+  // Raggruppa per tipo e calcola distanza dal centro
+  var huts = [], peaks = [], lakes = [];
+  elements.forEach(function(el) {
+    var t = el.tags || {};
+    if (!t.name) return;
+    var dlat = el.lat - centerLat, dlon = el.lon - centerLon;
+    var distKm = Math.round(Math.sqrt(dlat*dlat + dlon*dlon) * 111);
+    var ele = t.ele ? parseInt(t.ele) + 'm' : 'quota n.d.';
+    var entry = { name: t.name, ele: ele, dist: distKm };
+    if (t.tourism === 'alpine_hut') huts.push(entry);
+    else if (t.natural === 'peak') peaks.push(entry);
+    else lakes.push(entry);
+  });
+  // Ordina per distanza
+  function byDist(a,b){ return a.dist - b.dist; }
+  huts.sort(byDist); peaks.sort(byDist); lakes.sort(byDist);
+
+  var lines = [];
+  if (huts.length)  lines.push('RIFUGI ALPINI (da OSM): ' + huts.slice(0,15).map(function(x){ return x.name+' '+x.ele+' ('+x.dist+'km)'; }).join(' | '));
+  if (peaks.length) lines.push('CIME (da OSM): ' + peaks.slice(0,10).map(function(x){ return x.name+' '+x.ele+' ('+x.dist+'km)'; }).join(' | '));
+  if (lakes.length) lines.push('LAGHI (da OSM): ' + lakes.slice(0,10).map(function(x){ return x.name+' '+x.ele+' ('+x.dist+'km)'; }).join(' | '));
+  return lines.join('\n');
+}
+
+function callClaudeTrek(key, descLibera, giorni, diff, tipi, osmCtx, out) {
+  var tipiStr = tipi.join(' / ');
+
+  var SYS = 'Sei una guida alpina esperta. ' +
+    'Il cliente descrive la zona: rispetta ESATTAMENTE quella geografia, non spostarti in valli diverse. ' +
+    (osmCtx
+      ? 'Ti vengono forniti dati reali da OpenStreetMap: usa QUELLI per nomi e quote, non la tua memoria. '
+      : 'Non hai dati OSM: usa solo mete di cui sei molto certo, segnala nel campo desc i dati incerti. ') +
+    'Rispondi SOLO con JSON array valido, zero testo fuori.';
+
+  var osmSection = osmCtx
+    ? '\n\nDATI REALI DA OPENSTREETMAP (usa questi per nomi e quote, non inventare altri):\n' + osmCtx + '\n'
+    : '\n\n(Dati OSM non disponibili: usa conoscenza consolidata, segnala incertezze.)\n';
+
+  var USR = 'Genera esattamente ' + giorni + ' escursioni giornaliere per questa zona:\n\n' +
+    descLibera +
+    osmSection +
+    '\nTipo: ' + tipiStr + '. Difficolta massima: ' + diff + '.\n' +
+    'Rispetta la zona indicata. Per ogni escursione restituisci:\n' +
+    'giorno (1,2,...), titolo, tipo (' + tipiStr + '), ' +
+    'partenza (luogo preciso + quota), ' +
+    'meta (nome esatto da OSM se disponibile + quota da OSM), ' +
+    'km (A/R numero), dislivello (metri numero), durata (es. 5h), ' +
+    'difficolta (T1/T2/T3/T4/EE), sentiero_cai (es. CAI 31 o ""), ' +
+    'desc (3-4 frasi: tracciato, cosa si vede, stagione migliore), ' +
+    'consigli (parcheggio, acqua, attrezzatura), ' +
+    'alternativa_maltempo, ' +
+    'wiki (nome file Wikipedia senza estensione o ""). ' +
+    'SOLO JSON array.';
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -486,80 +1046,108 @@ function doSearch() {
       'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 8000,
       system: SYS,
       messages: [{ role: 'user', content: USR }]
     })
   })
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    if (data.error) throw new Error(data.error.message);
-
-    var text = (data.content || [])
-      .filter(function (b) { return b.type === 'text'; })
-      .map(function (b) { return b.text; })
-      .join('');
-
-    if (!text) throw new Error('Risposta vuota — controlla che la API Key sia valida e abbia crediti.');
-
-    var m = text.match(/\[[\s\S]*\]/);
-    if (!m) throw new Error('Formato non riconosciuto. Risposta: ' + text.slice(0, 150));
-
-    var arr = JSON.parse(m[0]);
-    if (!arr.length) throw new Error('Nessun risultato trovato per questa tratta.');
-
-    render(arr, isRT);
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    document.getElementById('btn-trek').disabled = false;
+    if (data.error) { out.innerHTML = '<div class="errmsg">&#10060; ' + esc(data.error.message) + '</div>'; return; }
+    var text = (data.content||[]).filter(function(b){ return b.type==='text'; }).map(function(b){ return b.text; }).join('');
+    try {
+      var arr = parseJSON(text);
+      var zonaRef = descLibera.split('\n')[0].slice(0, 60);
+      renderTrekItinerary(arr, zonaRef, !!osmCtx);
+    } catch(e) {
+      out.innerHTML = '<div class="errmsg">&#10060; ' + esc(e.message) + '</div>';
+    }
   })
-  .catch(function (e) { showError(e.message); })
-  .finally(function () {
-    btn.disabled = false;
-    btn.innerHTML = '🔍 Cerca trasporti';
+  .catch(function(e){
+    document.getElementById('btn-trek').disabled = false;
+    out.innerHTML = '<div class="errmsg">&#10060; ' + esc(e.message) + '</div>';
   });
 }
 
-// ── render ─────────────────────────────────────────────────────
-var ICONS = {
-  aereo: '✈️', treno: '🚆', auto: '🚗', traghetto: '⛴️', bus: '🚌'
-};
+function renderTrekItinerary(arr, dest, osmUsed) {
+  if (!arr || !arr.length) {
+    document.getElementById('out-trek').innerHTML = '<div class="errmsg">Nessun risultato trovato.</div>';
+    return;
+  }
+  var tipoColors = { 'Escursionismo':'#4ade80', 'Via ferrata':'#fb923c', 'Alpinismo':'#94a3b8' };
+  var diffColors = { 'T1':'#4ade80','T2':'#86efac','T3':'#fbbf24','T4':'#f87171','EE':'#e879f9','EE/A':'#e879f9' };
 
-function render(arr, isRT) {
-  var html = '<div class="results">';
+  var srcBadge = osmUsed
+    ? '<div style="font-size:.72rem;color:#4ade80;margin-bottom:.4rem;">&#10003; Dati geografici da OpenStreetMap (nomi e quote verificati)</div>'
+    : '<div style="font-size:.72rem;color:#f59e0b;margin-bottom:.4rem;">&#9888;&#65039; Dati geografici dalla memoria AI &mdash; verifica quote e nomi su CAI o Komoot</div>';
+  var html = '<div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:.5rem;">' + srcBadge;
+  arr.forEach(function(g) {
+    var col = tipoColors[g.tipo] || '#d4a843';
+    var diffCol = diffColors[g.difficolta] || '#7b82a0';
+    var imgUrl = g.wiki ? 'https://en.wikipedia.org/wiki/Special:Redirect/file/' + encodeURIComponent((g.wiki||'').replace(/ /g,'_')) + '.jpg' : '';
 
-  arr.forEach(function (t) {
-    var ico = ICONS[t.tipo] || '🚌';
-    html += '<div class="tr-card">';
+    html += '<div class="card" style="padding:0;overflow:hidden;border-left:4px solid '+col+'">';
 
-    // icon
-    html += '<div class="tr-icon">' + ico + '</div>';
-
-    // body
-    html += '<div class="tr-body">';
-    html += '<h3>' + esc(t.compagnia || t.tipo) + '</h3>';
-    html += '<div class="detail">' + esc(t.dettaglio || '') + '</div>';
-    if (t.note) {
-      html += '<div class="tr-note">ℹ️ ' + esc(t.note) + '</div>';
-    }
-    if (t.link) {
-      html += '<a class="tr-link" href="' + esc(t.link) + '" target="_blank" rel="noopener">Prenota / Vai al sito ↗</a>';
-    }
+    // Header giorno
+    html += '<div style="padding:1rem 1.2rem .7rem;display:flex;align-items:center;gap:.8rem;border-bottom:1px solid #2e3347">';
+    html += '<div style="background:'+col+';color:#0f1117;font-weight:700;font-size:.85rem;padding:.3rem .7rem;border-radius:6px;white-space:nowrap">Giorno '+esc(String(g.giorno))+'</div>';
+    html += '<div style="font-size:1rem;font-weight:600;color:#e8eaf0;line-height:1.3">'+esc(g.titolo||'')+'</div>';
     html += '</div>';
 
-    // meta
-    html += '<div class="tr-meta">';
-    html += '<div class="tr-price">' + esc(t.prezzo || '') + '</div>';
-    if (isRT && t.prezzo_ar) {
-      html += '<div class="tr-price-ar">A/R ' + esc(t.prezzo_ar) + '</div>';
-    }
-    html += '<div class="tr-dur">' + esc(t.durata || '') + '</div>';
+    // Corpo con immagine opzionale
+    html += '<div style="display:grid;grid-template-columns:'+(imgUrl?'1fr 180px':'1fr')+';gap:0">';
+    html += '<div style="padding:1rem 1.2rem">';
+
+    // Badge info
+    html += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem">';
+    if (g.difficolta) html += '<span style="background:'+diffCol+'22;color:'+diffCol+';border:1px solid '+diffCol+'44;padding:.2rem .55rem;border-radius:4px;font-size:.73rem;font-weight:600">'+esc(g.difficolta)+'</span>';
+    if (g.km)         html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">📏 '+esc(String(g.km))+' km</span>';
+    if (g.dislivello) html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">⬆️ '+esc(String(g.dislivello))+' m</span>';
+    if (g.durata)     html += '<span style="background:rgba(212,168,67,.1);color:#d4a843;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">⏱️ '+esc(g.durata)+'</span>';
+    if (g.sentiero_cai && g.sentiero_cai !== '') html += '<span style="background:rgba(255,255,255,.05);color:#a0a8c0;padding:.2rem .55rem;border-radius:4px;font-size:.73rem">🗺️ '+esc(g.sentiero_cai)+'</span>';
     html += '</div>';
 
+    // Partenza → Meta
+    html += '<div style="display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.7rem;font-size:.82rem">';
+    html += '<div style="flex:1"><span style="color:#7b82a0;font-size:.7rem;display:block;margin-bottom:.1rem">PARTENZA</span><span style="color:#e8eaf0">📍 '+esc(g.partenza||'')+'</span></div>';
+    html += '<div style="color:#7b82a0;padding-top:1.1rem">→</div>';
+    html += '<div style="flex:1"><span style="color:#7b82a0;font-size:.7rem;display:block;margin-bottom:.1rem">META</span><span style="color:'+col+'">🏔️ '+esc(g.meta||'')+'</span></div>';
     html += '</div>';
+
+    // Descrizione
+    if (g.desc) html += '<div style="font-size:.8rem;color:#9ca3af;line-height:1.65;margin-bottom:.7rem">'+esc(g.desc)+'</div>';
+
+    // Consigli pratici
+    if (g.consigli) {
+      html += '<div style="background:rgba(212,168,67,.07);border-radius:6px;padding:.5rem .7rem;font-size:.76rem;color:#c4a84a;margin-bottom:.5rem">';
+      html += '💡 '+esc(g.consigli)+'</div>';
+    }
+
+    // Alternativa maltempo
+    if (g.alternativa_maltempo) {
+      html += '<div style="background:rgba(56,189,248,.07);border-radius:6px;padding:.5rem .7rem;font-size:.76rem;color:#38bdf8">';
+      html += '🌧️ Alternativa: '+esc(g.alternativa_maltempo)+'</div>';
+    }
+
+    html += '</div>'; // fine testo
+
+    // Immagine
+    if (imgUrl) {
+      html += '<div style="position:relative;overflow:hidden">';
+      html += '<img src="'+imgUrl+'" style="width:180px;height:100%;min-height:160px;object-fit:cover;display:block" onerror="this.parentElement.remove()" />';
+      html += '</div>';
+    }
+
+    html += '</div>'; // fine grid
+    html += '</div>'; // fine card
   });
 
+  // (link esterni rimossi)
+
   html += '</div>';
-  document.getElementById('output').innerHTML = html;
+  document.getElementById('out-trek').innerHTML = html;
 }
 </script>
 </body>
