@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel AI</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0f1117;
+  color: #e8eaf0;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 2.2rem 1rem 1.8rem;
+  border-bottom: 1px solid #2e3347;
+  position: relative;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #d4a843, #f0c96a, #d4a843, transparent);
+}
+header .eye {
+  font-size: .65rem;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: #d4a843;
+  margin-bottom: .5rem;
+}
+header h1 {
+  font-family: Georgia, serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  line-height: 1;
+}
+header h1 span { color: #d4a843; font-style: italic; }
+header p { font-size: .85rem; color: #7b82a0; margin-top: .4rem; }
+
+/* WRAP */
+.wrap { max-width: 860px; margin: 0 auto; padding: 1.4rem 1rem 4rem; }
+
+/* API BAR */
+.apibar {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  background: rgba(212,168,67,.06);
+  border: 1px solid rgba(212,168,67,.25);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.apibar label {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #d4a843;
+  white-space: nowrap;
+}
+.apibar input {
+  flex: 1;
+  min-width: 180px;
+  padding: .45rem .8rem;
+  background: #0a0c12;
+  border: 1.5px solid #2e3347;
+  border-radius: 7px;
+  font-size: .85rem;
+  color: #e8eaf0;
+  font-family: inherit;
+  outline: none;
+}
+.apibar input:focus { border-color: #d4a843; }
+.apibar .note { font-size: .72rem; color: #7b82a0; }
+.apibar .note a { color: #d4a843; text-decoration: none; }
+
+/* CARD */
+.card {
+  background: #1a1d27;
+  border: 1px solid #2e3347;
+  border-radius: 14px;
+  padding: 1.4rem;
+  margin-bottom: 1rem;
+}
+.card-title {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #7b82a0;
+  margin-bottom: 1rem;
+}
+
+/* FIELDS */
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: .9rem;
+  margin-bottom: 1rem;
+}
+.fld label {
+  display: block;
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #7b82a0;
+  margin-bottom: .32rem;
+}
+.fld input, .fld select {
+  width: 100%;
+  padding: .58rem .9rem;
+  background: #0a0c12;
+  border: 1.5px solid #2e3347;
+  border-radius: 8px;
+  font-size: .88rem;
+  color: #e8eaf0;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+.fld input:focus, .fld select:focus { border-color: #d4a843; }
+
+/* CHIPS */
+.chips { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.chip {
+  padding: .38rem .95rem;
+  border-radius: 999px;
+  border: 1.5px solid #2e3347;
+  background: transparent;
+  color: #7b82a0;
+  font-size: .8rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.chip.on {
+  border-color: #d4a843;
+  background: rgba(212,168,67,.15);
+  color: #d4a843;
+  font-weight: 500;
+}
+
+/* OPTIONS ROW */
+.opt-row {
+  display: flex;
+  gap: .8rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.opt-row .fld { flex: 1; min-width: 100px; }
+
+/* BUTTON */
+.btn {
+  padding: .62rem 1.5rem;
+  background: #d4a843;
+  color: #0f1117;
+  border: none;
+  border-radius: 9px;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background .2s, transform .1s;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn:hover { background: #f0c96a; transform: translateY(-1px); }
+.btn:disabled { background: #2e3347; color: #7b82a0; cursor: not-allowed; transform: none; }
+
+/* LOADING */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: 1.3rem 1.4rem;
+  color: #7b82a0;
+  font-style: italic;
+  font-size: .88rem;
+  background: #1a1d27;
+  border: 1px solid #2e3347;
+  border-radius: 14px;
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid #2e3347;
+  border-top-color: #d4a843;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ERROR */
+.errmsg {
+  background: rgba(248,113,113,.1);
+  border: 1px solid rgba(248,113,113,.3);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  color: #f87171;
+  font-size: .85rem;
+  margin-top: .8rem;
+}
+
+/* RESULT CARDS */
+.results { display: grid; gap: .85rem; margin-top: .2rem; }
+
+.tr-card {
+  background: #1a1d27;
+  border: 1px solid #2e3347;
+  border-radius: 14px;
+  padding: 1.2rem 1.3rem;
+  display: grid;
+  grid-template-columns: 2.8rem 1fr auto;
+  gap: .9rem;
+  align-items: start;
+  transition: border-color .2s;
+}
+.tr-card:hover { border-color: rgba(212,168,67,.5); }
+
+.tr-icon { font-size: 1.9rem; padding-top: .1rem; }
+
+.tr-body h3 {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #e8eaf0;
+  margin-bottom: .28rem;
+}
+.tr-body .detail {
+  font-size: .82rem;
+  color: #7b82a0;
+  line-height: 1.65;
+}
+.tr-body .tr-note {
+  font-size: .75rem;
+  color: #d4a843;
+  margin-top: .35rem;
+}
+.tr-body .tr-link {
+  display: inline-block;
+  margin-top: .55rem;
+  padding: .28rem .7rem;
+  background: rgba(212,168,67,.1);
+  border: 1px solid rgba(212,168,67,.3);
+  border-radius: 6px;
+  color: #d4a843;
+  font-size: .74rem;
+  text-decoration: none;
+  transition: background .15s;
+}
+.tr-body .tr-link:hover { background: rgba(212,168,67,.22); }
+
+.tr-meta { text-align: right; min-width: 88px; }
+.tr-price {
+  font-family: Georgia, serif;
+  font-size: 1.1rem;
+  color: #d4a843;
+  white-space: nowrap;
+}
+.tr-price-ar {
+  font-size: .8rem;
+  color: #f0c96a;
+  margin-top: .1rem;
+  white-space: nowrap;
+}
+.tr-dur {
+  font-size: .74rem;
+  color: #7b82a0;
+  margin-top: .2rem;
+}
+
+/* hide ret wrapper when disabled */
+#ret-wrap { transition: opacity .2s; }
+
+@media (max-width: 600px) {
+  .row3 { grid-template-columns: 1fr 1fr; }
+  header h1 { font-size: 2rem; }
+  .tr-card { grid-template-columns: 2.4rem 1fr; }
+  .tr-meta { grid-column: 2; text-align: left; margin-top: .3rem; }
+}
+@media (max-width: 400px) {
+  .row3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eye">✦ il tuo agente di viaggio ✦</div>
+  <h1>Travel <span>AI</span></h1>
+  <p>Trova le migliori soluzioni di trasporto per il tuo viaggio</p>
+</header>
+
+<div class="wrap">
+
+  <!-- API KEY -->
+  <div class="apibar">
+    <label>🔑 API Key Anthropic</label>
+    <input type="password" id="apikey" placeholder="sk-ant-..." />
+    <span class="note">
+      Ottienila su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+      &rarr; API Keys &nbsp;·&nbsp; La chiave resta solo nel tuo browser
+    </span>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="card-title">Configura il tuo viaggio</div>
+
+    <div class="row3">
+      <div class="fld">
+        <label>Partenza da</label>
+        <input type="text" id="from" placeholder="es. Milano" />
+      </div>
+      <div class="fld">
+        <label>Destinazione</label>
+        <input type="text" id="dest" placeholder="es. La Palma, Tokyo..." />
+      </div>
+      <div class="fld">
+        <label>Data partenza</label>
+        <input type="date" id="date-out" />
+      </div>
+    </div>
+
+    <div class="chips">
+      <button class="chip on" id="chip-ow" onclick="setTrip('ow')">➡️ Solo andata</button>
+      <button class="chip"    id="chip-rt" onclick="setTrip('rt')">🔄 Andata e ritorno</button>
+    </div>
+
+    <div class="opt-row">
+      <div class="fld" id="ret-wrap" style="opacity:.3; pointer-events:none;">
+        <label>Data ritorno</label>
+        <input type="date" id="date-ret" />
+      </div>
+      <div class="fld">
+        <label>Passeggeri</label>
+        <select id="pax">
+          <option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5+</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Classe</label>
+        <select id="classe">
+          <option value="economy">Economy</option>
+          <option value="business">Business</option>
+          <option value="first">Prima Classe</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-go" onclick="doSearch()">
+        🔍 Cerca trasporti
+      </button>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output"></div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── date defaults ──────────────────────────────────────────────
+(function () {
+  var out = new Date();
+  out.setDate(out.getDate() + 30);
+  document.getElementById('date-out').valueAsDate = out;
+
+  var ret = new Date(out);
+  ret.setDate(ret.getDate() + 7);
+  document.getElementById('date-ret').valueAsDate = ret;
+})();
+
+// ── trip type toggle ───────────────────────────────────────────
+var tripType = 'ow';
+
+function setTrip(t) {
+  tripType = t;
+  document.getElementById('chip-ow').classList[t === 'ow' ? 'add' : 'remove']('on');
+  document.getElementById('chip-rt').classList[t === 'rt' ? 'add' : 'remove']('on');
+  var wrap = document.getElementById('ret-wrap');
+  if (t === 'rt') {
+    wrap.style.opacity = '1';
+    wrap.style.pointerEvents = 'auto';
+  } else {
+    wrap.style.opacity = '.3';
+    wrap.style.pointerEvents = 'none';
+  }
+}
+
+// ── helpers ────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showLoading(msg) {
+  document.getElementById('output').innerHTML =
+    '<div class="loading"><div class="spinner"></div>' + esc(msg) + '</div>';
+}
+
+function showError(msg) {
+  document.getElementById('output').innerHTML =
+    '<div class="errmsg">&#10060; ' + esc(msg) + '</div>';
+}
+
+// ── main search ────────────────────────────────────────────────
+function doSearch() {
+  var key   = document.getElementById('apikey').value.trim();
+  var from  = document.getElementById('from').value.trim();
+  var dest  = document.getElementById('dest').value.trim();
+  var dOut  = document.getElementById('date-out').value;
+  var dRet  = document.getElementById('date-ret').value;
+  var pax   = document.getElementById('pax').value;
+  var cls   = document.getElementById('classe').value;
+  var isRT  = (tripType === 'rt');
+
+  if (!key)  { alert('Inserisci la tua API Key Anthropic.'); return; }
+  if (!from) { alert('Inserisci la città di partenza.'); return; }
+  if (!dest) { alert('Inserisci la destinazione.'); return; }
+
+  var btn = document.getElementById('btn-go');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#0f1117;"></div> Ricerca...';
+
+  showLoading('Cerco le migliori soluzioni di trasporto in tempo reale...');
+
+  var tripStr  = isRT ? 'andata e ritorno' : 'solo andata';
+  var dateInfo = dOut ? 'Partenza: ' + dOut : '';
+  if (isRT && dRet) dateInfo += ' — Ritorno: ' + dRet;
+
+  var SYS = 'Sei un esperto di trasporti. Rispondi ESCLUSIVAMENTE con un array JSON valido, zero testo fuori dal JSON. Ogni oggetto deve avere questi campi: tipo (aereo/treno/auto/traghetto/bus), compagnia (nome reale), dettaglio (percorso dettagliato es. MXP→MAD→SPC con scalo 2h a Madrid), durata (es. "~6h totali"), prezzo (es. "da 180€"), link (URL reale e funzionante del sito di prenotazione), note (consiglio pratico). Se il viaggio è andata e ritorno aggiungi anche prezzo_ar (prezzo totale A/R).';
+
+  var USR = 'Trova TUTTE le opzioni reali di trasporto (' + tripStr + ') da ' + from + ' a ' + dest + '. ' + dateInfo + '. Considera: voli diretti, voli con scalo, treni, autobus, traghetti e combinazioni. Passeggeri: ' + pax + '. Classe: ' + cls + '. Usa la web search per trovare compagnie reali, orari e prezzi aggiornati. Restituisci 4-7 opzioni ordinate dalla più pratica. SOLO array JSON.';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      system: SYS,
+      messages: [{ role: 'user', content: USR }]
+    })
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (data.error) throw new Error(data.error.message);
+
+    var text = (data.content || [])
+      .filter(function (b) { return b.type === 'text'; })
+      .map(function (b) { return b.text; })
+      .join('');
+
+    if (!text) throw new Error('Risposta vuota — controlla che la API Key sia valida e abbia crediti.');
+
+    var m = text.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('Formato non riconosciuto. Risposta: ' + text.slice(0, 150));
+
+    var arr = JSON.parse(m[0]);
+    if (!arr.length) throw new Error('Nessun risultato trovato per questa tratta.');
+
+    render(arr, isRT);
+  })
+  .catch(function (e) { showError(e.message); })
+  .finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '🔍 Cerca trasporti';
+  });
+}
+
+// ── render ─────────────────────────────────────────────────────
+var ICONS = {
+  aereo: '✈️', treno: '🚆', auto: '🚗', traghetto: '⛴️', bus: '🚌'
+};
+
+function render(arr, isRT) {
+  var html = '<div class="results">';
+
+  arr.forEach(function (t) {
+    var ico = ICONS[t.tipo] || '🚌';
+    html += '<div class="tr-card">';
+
+    // icon
+    html += '<div class="tr-icon">' + ico + '</div>';
+
+    // body
+    html += '<div class="tr-body">';
+    html += '<h3>' + esc(t.compagnia || t.tipo) + '</h3>';
+    html += '<div class="detail">' + esc(t.dettaglio || '') + '</div>';
+    if (t.note) {
+      html += '<div class="tr-note">ℹ️ ' + esc(t.note) + '</div>';
+    }
+    if (t.link) {
+      html += '<a class="tr-link" href="' + esc(t.link) + '" target="_blank" rel="noopener">Prenota / Vai al sito ↗</a>';
+    }
+    html += '</div>';
+
+    // meta
+    html += '<div class="tr-meta">';
+    html += '<div class="tr-price">' + esc(t.prezzo || '') + '</div>';
+    if (isRT && t.prezzo_ar) {
+      html += '<div class="tr-price-ar">A/R ' + esc(t.prezzo_ar) + '</div>';
+    }
+    html += '<div class="tr-dur">' + esc(t.durata || '') + '</div>';
+    html += '</div>';
+
+    html += '</div>';
+  });
+
+  html += '</div>';
+  document.getElementById('output').innerHTML = html;
+}
+</script>
+</body>
+</html>
